@@ -16,7 +16,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(title: 'Settings Page'.text.make()),
+      appBar: AppBar(title: '설정'.text.make()),
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

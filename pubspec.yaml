@@ -1,5 +1,5 @@
 name: daeja
-description: "A new Flutter project."
+description: "제주도 주차장 정보를 실시간으로 확인할 수 있는 앱"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -40,6 +40,7 @@ dependencies:
   flutter_naver_map: ^1.4.1+1
   url_launcher: ^6.3.1
   http: ^1.2.2
+  share_plus: ^10.1.2
 
 dev_dependencies:
   flutter_test:

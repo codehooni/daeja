@@ -10,6 +10,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../helper/location_service.dart';
 import '../models/parking_lot.dart';
@@ -305,23 +306,47 @@ class _HomePageState extends State<HomePage> {
             ),
             height10,
             
-            // 길찾기 버튼
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _openNaverMap(lot),
-                icon: const Icon(Icons.directions, size: 20),
-                label: '네이버맵에서 길찾기'.text.size(16).bold.make(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            // 버튼들
+            Row(
+              children: [
+                // 길찾기 버튼
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _openNaverMap(lot),
+                    icon: const Icon(Icons.directions, size: 18),
+                    label: '길찾기'.text.size(14).bold.make(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
                   ),
-                  elevation: 2,
                 ),
-              ),
+                width10,
+                // 공유 버튼
+                Expanded(
+                  flex: 1,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _shareParking(lot),
+                    icon: const Icon(Icons.share, size: 18),
+                    label: '공유'.text.size(14).bold.make(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -479,6 +504,32 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _shareParking(ParkingLot lot) async {
+    final shareText = '''
+🅿️ ${lot.name}
+
+📍 주소: ${lot.address}
+
+🚗 주차 현황:
+  • 전체 ${lot.totalSpaces}면
+  • 잔여 ${lot.availableSpaces}면
+  ${lot.availableSpaces == 0 ? '⚠️ 주차 불가' : '✅ 주차 가능'}
+
+📱 대제주 앱으로 실시간 주차 정보를 확인하세요!
+
+🗺️ 위치: https://map.naver.com/v5/search/${Uri.encodeComponent(lot.name)}
+    ''';
+
+    try {
+      await Share.share(
+        shareText,
+        subject: '🅿️ ${lot.name} 주차장 정보',
+      );
+    } catch (e) {
+      _showErrorDialog('공유하는 중 오류가 발생했습니다.');
+    }
   }
 
   Future<void> _openNaverMap(ParkingLot lot) async {

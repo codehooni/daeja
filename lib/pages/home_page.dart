@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:daeja/ceyhun/constant_widget.dart';
 import 'package:daeja/ceyhun/my_text_extension.dart';
 import 'package:daeja/providers/parking_provider.dart';
 import 'package:daeja/widgets/map_controller.dart';
 import 'package:daeja/widgets/parking_marker.dart';
+import 'package:daeja/widgets/cluster_marker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../helper/location_service.dart';
 import '../models/parking_lot.dart';
+import '../utils/marker_clustering.dart';
 
 class HomePage extends StatefulWidget {
   final Function(NaverMapController)? onMapControllerReady;
@@ -23,12 +26,26 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   NaverMapController? mapController;
+  Timer? _debounceTimer;
+  List<ParkingLot> _currentParkingLots = [];
 
   @override
   void dispose() {
     // 메모리 최적화: 마커 캐시 정리
     clearMarkerCache();
+    clearClusterMarkerCache();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+  
+  void _updateMarkersDebounced() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
+      if (mapController != null && _currentParkingLots.isNotEmpty) {
+        final cameraPosition = await mapController!.getCameraPosition();
+        await _updateMarkers(mapController!, cameraPosition.zoom, _currentParkingLots);
+      }
+    });
   }
 
   @override
@@ -78,6 +95,12 @@ class _HomePageState extends State<HomePage> {
                 onMapReady(controller);
                 widget.onMapControllerReady?.call(controller);
               },
+              onCameraChange: (NCameraUpdateReason reason, bool isAnimated) {
+                // 카메라 변경 시 클러스터링 업데이트
+                if (mapController != null) {
+                  _updateMarkersDebounced();
+                }
+              },
             ),
 
 
@@ -122,25 +145,41 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final lots = parkingProvider.parkingLots;
+    // 현재 주차장 목록 저장
+    _currentParkingLots = parkingProvider.parkingLots;
     
-    // 병렬로 모든 마커 생성 (성능 개선)
-    final markerFutures = lots.map((lot) => buildParkingMarker(lot, context));
+    // 초기 줌 레벨로 클러스터링 적용
+    await _updateMarkers(controller, 14.0, _currentParkingLots);
+  }
+  
+  Future<void> _updateMarkers(NaverMapController controller, double zoomLevel, List<ParkingLot> lots) async {
+    // 기존 마커들 제거
+    await controller.clearOverlays(type: NOverlayType.marker);
+    
+    // 클러스터링 적용
+    final clusters = MarkerClustering.clusterParkingLots(lots, zoomLevel);
+    
+    // 병렬로 클러스터 마커 생성
+    final markerFutures = clusters.map((cluster) => buildClusterMarker(cluster, context));
     final markerIcons = await Future.wait(markerFutures);
     
     // 마커 추가
-    for (int i = 0; i < lots.length; i++) {
-      final lot = lots[i];
+    for (int i = 0; i < clusters.length; i++) {
+      final cluster = clusters[i];
       final markerIcon = markerIcons[i];
       
       final marker = NMarker(
-        id: lot.id,
-        position: NLatLng(lot.latitude, lot.longitude),
+        id: cluster.isCluster ? 'cluster_$i' : cluster.parkingLots.first.id,
+        position: NLatLng(cluster.latitude, cluster.longitude),
         icon: markerIcon,
       );
 
       marker.setOnTapListener((overlay) {
-        _showParkingInfoModal(lot);
+        if (cluster.isCluster) {
+          _showClusterInfoModal(cluster);
+        } else {
+          _showParkingInfoModal(cluster.parkingLots.first);
+        }
       });
 
       controller.addOverlay(marker);
@@ -282,6 +321,158 @@ class _HomePageState extends State<HomePage> {
                   ),
                   elevation: 2,
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showClusterInfoModal(ClusterPoint cluster) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        padding: const EdgeInsets.only(
+          top: 4,
+          left: 16,
+          right: 16,
+          bottom: 48,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+        ),
+        child: Column(
+          children: [
+            // 핸들바
+            Row(
+              children: [
+                spacer,
+                Container(
+                  width: 36,
+                  height: 5,
+                  padding: const EdgeInsets.all(8.0),
+                  margin: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                spacer,
+              ],
+            ),
+            
+            // 클러스터 정보
+            '이 지역 주차장 ${cluster.size}곳'.text.bold
+                .size(20.0)
+                .color(Theme.of(context).colorScheme.onPrimaryContainer)
+                .make(),
+            height10,
+            
+            // 전체 주차 현황
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(
+                    children: [
+                      '전체 주차면'.text
+                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                          .size(14)
+                          .make(),
+                      height5,
+                      '${cluster.totalSpaces}면'.text
+                          .color(Theme.of(context).colorScheme.onSurface)
+                          .size(18)
+                          .bold
+                          .make(),
+                    ],
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                  ),
+                  Column(
+                    children: [
+                      '잔여 주차면'.text
+                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                          .size(14)
+                          .make(),
+                      height5,
+                      '${cluster.totalAvailableSpaces}면'.text
+                          .color(cluster.totalAvailableSpaces > 0 
+                              ? Theme.of(context).colorScheme.primary 
+                              : Theme.of(context).colorScheme.error)
+                          .size(18)
+                          .bold
+                          .make(),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            
+            // 주차장 목록
+            Expanded(
+              child: ListView.builder(
+                itemCount: cluster.parkingLots.length,
+                itemBuilder: (context, index) {
+                  final lot = cluster.parkingLots[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: lot.name.text.bold
+                          .size(16.0)
+                          .color(Theme.of(context).colorScheme.onSurface)
+                          .make(),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          height5,
+                          Row(
+                            children: [
+                              '전체: ${lot.totalSpaces}면'.text
+                                  .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                                  .size(12)
+                                  .make(),
+                              width10,
+                              '잔여: ${lot.availableSpaces}면'.text
+                                  .color(lot.availableSpaces > 0 
+                                      ? Theme.of(context).colorScheme.primary 
+                                      : Theme.of(context).colorScheme.error)
+                                  .size(12)
+                                  .bold
+                                  .make(),
+                            ],
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _showParkingInfoModal(lot);
+                      },
+                    ),
+                  );
+                },
               ),
             ),
           ],

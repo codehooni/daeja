@@ -1,4 +1,5 @@
 import 'package:daeja/pages/main_page.dart';
+import 'package:daeja/providers/parking_provider.dart';
 import 'package:daeja/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -25,8 +26,11 @@ void main() async {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => ParkingProvider()),
+      ],
       child: const MyApp(),
     ),
   );

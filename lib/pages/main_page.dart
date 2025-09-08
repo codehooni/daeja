@@ -1,13 +1,16 @@
 import 'package:daeja/ceyhun/constant_widget.dart';
 import 'package:daeja/ceyhun/my_text_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../widgets/my_bottom_navigation_item.dart';
+import '../providers/parking_provider.dart';
+import '../helper/location_service.dart';
+import '../models/parking_lot.dart';
 
 import 'home_page.dart';
-import 'search_page.dart';
 import 'settings_page.dart';
-import 'history_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -30,6 +33,195 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  Future<void> _showNearbyParkingLots() async {
+    final parkingProvider = Provider.of<ParkingProvider>(context, listen: false);
+    
+    try {
+      // 현재 위치 가져오기
+      final position = await LocationHelper.getPosition();
+      if (position == null) {
+        _showErrorDialog('현재 위치를 가져올 수 없습니다.');
+        return;
+      }
+
+      // 주차장 데이터 가져오기
+      await parkingProvider.fetchParkingLots();
+      
+      if (parkingProvider.error != null) {
+        _showErrorDialog(parkingProvider.error!);
+        return;
+      }
+
+      // 거리순으로 정렬된 주차장 목록 가져오기
+      final nearbyLots = _getNearbyParkingLots(
+        parkingProvider.parkingLots,
+        position,
+      );
+
+      // 주차장 목록 모달 표시
+      _showParkingListModal(nearbyLots, position);
+
+    } catch (e) {
+      _showErrorDialog('주차장 정보를 불러오는 중 오류가 발생했습니다.');
+    }
+  }
+
+  List<Map<String, dynamic>> _getNearbyParkingLots(
+    List<ParkingLot> parkingLots,
+    Position userPosition,
+  ) {
+    final lotsWithDistance = parkingLots.map((lot) {
+      final distance = Geolocator.distanceBetween(
+        userPosition.latitude,
+        userPosition.longitude,
+        lot.latitude,
+        lot.longitude,
+      );
+      return {
+        'lot': lot,
+        'distance': distance,
+      };
+    }).toList();
+
+    // 거리순으로 정렬
+    lotsWithDistance.sort((a, b) => (a['distance'] as double).compareTo(b['distance'] as double));
+    
+    return lotsWithDistance;
+  }
+
+  void _showParkingListModal(List<Map<String, dynamic>> nearbyLots, Position userPosition) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        padding: const EdgeInsets.only(
+          top: 4,
+          left: 16,
+          right: 16,
+          bottom: 48,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+        ),
+        child: Column(
+          children: [
+            // 핸들
+            Row(
+              children: [
+                spacer,
+                Container(
+                  width: 36,
+                  height: 5,
+                  padding: const EdgeInsets.all(8.0),
+                  margin: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                spacer,
+              ],
+            ),
+            
+            // 제목
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: '내 주변 주차장'.text.bold
+                  .size(20.0)
+                  .color(Theme.of(context).colorScheme.onPrimaryContainer)
+                  .make(),
+            ),
+            
+            // 주차장 목록
+            Expanded(
+              child: ListView.builder(
+                itemCount: nearbyLots.length,
+                itemBuilder: (context, index) {
+                  final item = nearbyLots[index];
+                  final lot = item['lot'] as ParkingLot;
+                  final distance = item['distance'] as double;
+                  final distanceText = distance < 1000
+                      ? '${distance.round()}m'
+                      : '${(distance / 1000).toStringAsFixed(1)}km';
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: lot.name.text.bold
+                                  .size(18.0)
+                                  .color(Theme.of(context).colorScheme.onSurface)
+                                  .make(),
+                            ),
+                            distanceText.text
+                                .size(14.0)
+                                .color(Theme.of(context).colorScheme.primary)
+                                .bold
+                                .make(),
+                          ],
+                        ),
+                        height5,
+                        Row(
+                          children: [
+                            '전체: ${lot.totalSpaces}면'.text
+                                .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                                .make(),
+                            width10,
+                            '잔여: ${lot.availableSpaces}면'.text
+                                .color(Theme.of(context).colorScheme.primary)
+                                .bold
+                                .make(),
+                          ],
+                        ),
+                        height5,
+                        lot.address.text
+                            .size(14.0)
+                            .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.6))
+                            .make(),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: '오류'.text.bold.make(),
+        content: message.text.make(),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: '확인'.text.make(),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -71,9 +263,7 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _onItemTapped(0);
-        },
+        onPressed: () => _showNearbyParkingLots(),
         shape: const CircleBorder(),
         backgroundColor: Theme.of(context).colorScheme.primary,
         child: 'P'.text

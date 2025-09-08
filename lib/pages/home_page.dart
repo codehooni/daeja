@@ -1,11 +1,12 @@
 import 'package:daeja/ceyhun/constant_widget.dart';
 import 'package:daeja/ceyhun/my_text_extension.dart';
-import 'package:daeja/service/parking_service.dart';
+import 'package:daeja/providers/parking_provider.dart';
 import 'package:daeja/widgets/map_controller.dart';
 import 'package:daeja/widgets/parking_marker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 
 import '../helper/location_service.dart';
 
@@ -84,6 +85,11 @@ class _HomePageState extends State<HomePage> {
                     onTap: () =>
                         mapController?.updateCamera(NCameraUpdate.zoomOut()),
                   ),
+                  const SizedBox(height: 10),
+                  MapController(
+                    icon: Icons.my_location,
+                    onTap: () => _moveToMyLocation(),
+                  ),
                 ],
               ),
             ),
@@ -94,10 +100,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> onMapReady(NaverMapController controller) async {
-    try {
-      final lots = await ParkingService.fetchParkingLots();
+    final parkingProvider = Provider.of<ParkingProvider>(context, listen: false);
+    
+    // Provider에서 주차장 데이터 가져오기
+    await parkingProvider.fetchParkingLots();
+    
+    if (parkingProvider.error != null) {
+      _showErrorDialog(parkingProvider.error!);
+      return;
+    }
 
-      for (var lot in lots) {
+    final lots = parkingProvider.parkingLots;
+    for (var lot in lots) {
       final markerIcon = await buildParkingMarker(lot, context);
       final marker = NMarker(
         id: lot.id,
@@ -167,13 +181,7 @@ class _HomePageState extends State<HomePage> {
         );
       });
 
-        controller.addOverlay(marker);
-      }
-    } catch (e) {
-      // 에러가 발생했을 때 사용자에게 알림 표시
-      if (mounted) {
-        _showErrorDialog(e.toString().replaceFirst('Exception: ', ''));
-      }
+      controller.addOverlay(marker);
     }
   }
 
@@ -194,5 +202,28 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  // 내 위치로 이동하기 (카메라만 이동)
+  Future<void> _moveToMyLocation() async {
+    try {
+      final position = await LocationHelper.getPosition();
+      if (position == null) {
+        _showErrorDialog('현재 위치를 가져올 수 없습니다.');
+        return;
+      }
+
+      // 지도를 현재 위치로 이동
+      if (mapController != null) {
+        await mapController!.updateCamera(
+          NCameraUpdate.withParams(
+            target: NLatLng(position.latitude, position.longitude),
+            zoom: 16,
+          ),
+        );
+      }
+    } catch (e) {
+      _showErrorDialog('위치 이동 중 오류가 발생했습니다.');
+    }
   }
 }

@@ -25,6 +25,13 @@ class _HomePageState extends State<HomePage> {
   NaverMapController? mapController;
 
   @override
+  void dispose() {
+    // 메모리 최적화: 마커 캐시 정리
+    clearMarkerCache();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<Position?>(
       future: LocationHelper.getPosition(),
@@ -116,8 +123,16 @@ class _HomePageState extends State<HomePage> {
     }
 
     final lots = parkingProvider.parkingLots;
-    for (var lot in lots) {
-      final markerIcon = await buildParkingMarker(lot, context);
+    
+    // 병렬로 모든 마커 생성 (성능 개선)
+    final markerFutures = lots.map((lot) => buildParkingMarker(lot, context));
+    final markerIcons = await Future.wait(markerFutures);
+    
+    // 마커 추가
+    for (int i = 0; i < lots.length; i++) {
+      final lot = lots[i];
+      final markerIcon = markerIcons[i];
+      
       final marker = NMarker(
         id: lot.id,
         position: NLatLng(lot.latitude, lot.longitude),

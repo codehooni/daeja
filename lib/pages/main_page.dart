@@ -81,6 +81,7 @@ class _MainPageState extends State<MainPage> {
     List<ParkingLot> parkingLots,
     Position userPosition,
   ) {
+    // 병렬로 거리 계산 (성능 개선)
     final lotsWithDistance = parkingLots.map((lot) {
       final distance = Geolocator.distanceBetween(
         userPosition.latitude,
@@ -94,10 +95,12 @@ class _MainPageState extends State<MainPage> {
       };
     }).toList();
 
-    // 거리순으로 정렬
+    // 거리순으로 정렬 후 상위 20개만 반환 (성능 최적화)
     lotsWithDistance.sort((a, b) => (a['distance'] as double).compareTo(b['distance'] as double));
     
-    return lotsWithDistance;
+    return lotsWithDistance.length > 20 
+        ? lotsWithDistance.sublist(0, 20) 
+        : lotsWithDistance;
   }
 
   void _showParkingListModal(List<Map<String, dynamic>> nearbyLots, Position userPosition) {

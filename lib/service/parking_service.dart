@@ -12,9 +12,20 @@ class ParkingService {
 
   static Future<List<ParkingLot>> fetchParkingLots() async {
     try {
-      // API 호출
-      final infoRes = await http.get(Uri.parse(infoUrl));
-      final stateRes = await http.get(Uri.parse(stateUrl));
+      // 병렬 API 호출 (성능 개선)
+      final results = await Future.wait([
+        http.get(Uri.parse(infoUrl)).timeout(
+          const Duration(seconds: 10),
+          onTimeout: () => throw Exception("주차장 정보 요청 시간 초과"),
+        ),
+        http.get(Uri.parse(stateUrl)).timeout(
+          const Duration(seconds: 10), 
+          onTimeout: () => throw Exception("주차장 상태 요청 시간 초과"),
+        ),
+      ]);
+
+      final infoRes = results[0];
+      final stateRes = results[1];
 
       // HTTP 상태 코드 확인
       if (infoRes.statusCode != 200) {

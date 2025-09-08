@@ -25,7 +25,25 @@ class _HomePageState extends State<HomePage> {
       future: LocationHelper.getPosition(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Container(
+            color: Theme.of(context).colorScheme.surface,
+            child: const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text(
+                    '지도를 준비하는 중...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         }
 
         final pos = snapshot.data;
@@ -48,6 +66,7 @@ class _HomePageState extends State<HomePage> {
                 onMapReady(controller);
               },
             ),
+
 
             Positioned(
               right: 4,
@@ -76,9 +95,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> onMapReady(NaverMapController controller) async {
     try {
-      print("주차장 데이터 가져오기 시작...");
       final lots = await ParkingService.fetchParkingLots();
-      print("주차장 데이터 ${lots.length}개 가져옴");
 
       for (var lot in lots) {
       final markerIcon = await buildParkingMarker(lot, context);
@@ -154,9 +171,7 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       // 에러가 발생했을 때 사용자에게 알림 표시
-      print("에러 발생: $e");
       if (mounted) {
-        print("에러 다이얼로그 표시");
         _showErrorDialog(e.toString().replaceFirst('Exception: ', ''));
       }
     }

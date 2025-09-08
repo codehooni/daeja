@@ -3,6 +3,7 @@ import 'package:daeja/ceyhun/my_text_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../widgets/my_bottom_navigation_item.dart';
 import '../providers/parking_provider.dart';
@@ -21,13 +22,20 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
+  NaverMapController? _mapController;
 
-  final List<Widget> _pages = const [
-    HomePage(),
-    // SearchPage(),
-    // HistoryPage(),
-    SettingsPage(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomePage(onMapControllerReady: (controller) {
+        _mapController = controller;
+      }),
+      SettingsPage(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -151,16 +159,18 @@ class _MainPageState extends State<MainPage> {
                       ? '${distance.round()}m'
                       : '${(distance / 1000).toStringAsFixed(1)}km';
 
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                  return GestureDetector(
+                    onTap: () => _onParkingLotTapped(lot),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                         Row(
                           children: [
                             Expanded(
@@ -196,10 +206,102 @@ class _MainPageState extends State<MainPage> {
                             .make(),
                       ],
                     ),
+                    ),
                   );
                 },
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onParkingLotTapped(ParkingLot lot) async {
+    // 먼저 주변 주차장 목록 모달 닫기
+    Navigator.of(context).pop();
+    
+    // 홈 페이지로 이동
+    if (_currentIndex != 0) {
+      setState(() {
+        _currentIndex = 0;
+      });
+    }
+
+    // 잠시 대기 후 지도 이동 (화면 전환 완료 후)
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    if (_mapController != null) {
+      // 지도를 해당 주차장 위치로 이동
+      await _mapController!.updateCamera(
+        NCameraUpdate.withParams(
+          target: NLatLng(lot.latitude, lot.longitude),
+          zoom: 16,
+        ),
+      );
+      
+      // 잠시 대기 후 주차장 정보 모달 표시
+      await Future.delayed(const Duration(milliseconds: 500));
+      _showParkingInfoModal(lot);
+    }
+  }
+
+  void _showParkingInfoModal(ParkingLot lot) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(
+          top: 4,
+          left: 16,
+          right: 16,
+          bottom: 48,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                spacer,
+                Container(
+                  width: 36,
+                  height: 5,
+                  padding: const EdgeInsets.all(8.0),
+                  margin: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                spacer,
+              ],
+            ),
+            Row(
+              children: [
+                lot.name.text.bold
+                    .size(22.0)
+                    .color(Theme.of(context).colorScheme.onPrimaryContainer)
+                    .make(),
+                width10,
+                '전체: ${lot.totalSpaces}'.text.make(),
+              ],
+            ),
+            height5,
+            '잔여: ${lot.availableSpaces}면'.text
+                .color(Theme.of(context).colorScheme.primary)
+                .bold
+                .make(),
+            height10,
+            lot.address.text.make(),
           ],
         ),
       ),

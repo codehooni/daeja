@@ -11,7 +11,9 @@ import 'package:provider/provider.dart';
 import '../helper/location_service.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Function(NaverMapController)? onMapControllerReady;
+  
+  const HomePage({super.key, this.onMapControllerReady});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -65,6 +67,7 @@ class _HomePageState extends State<HomePage> {
               onMapReady: (controller) {
                 mapController = controller;
                 onMapReady(controller);
+                widget.onMapControllerReady?.call(controller);
               },
             ),
 

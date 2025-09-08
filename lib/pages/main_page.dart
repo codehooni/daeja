@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/my_bottom_navigation_item.dart';
 import '../providers/parking_provider.dart';
@@ -269,6 +270,7 @@ class _MainPageState extends State<MainPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 핸들바
             Row(
               children: [
                 spacer,
@@ -285,27 +287,131 @@ class _MainPageState extends State<MainPage> {
                 spacer,
               ],
             ),
-            Row(
-              children: [
-                lot.name.text.bold
-                    .size(22.0)
-                    .color(Theme.of(context).colorScheme.onPrimaryContainer)
-                    .make(),
-                width10,
-                '전체: ${lot.totalSpaces}'.text.make(),
-              ],
-            ),
-            height5,
-            '잔여: ${lot.availableSpaces}면'.text
-                .color(Theme.of(context).colorScheme.primary)
-                .bold
+            
+            // 주차장 이름
+            lot.name.text.bold
+                .size(24.0)
+                .color(Theme.of(context).colorScheme.onPrimaryContainer)
                 .make(),
             height10,
-            lot.address.text.make(),
+            
+            // 주차 현황
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      '전체 주차면'.text
+                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                          .size(14)
+                          .make(),
+                      height5,
+                      '${lot.totalSpaces}면'.text
+                          .color(Theme.of(context).colorScheme.onSurface)
+                          .size(20)
+                          .bold
+                          .make(),
+                    ],
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      '잔여 주차면'.text
+                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                          .size(14)
+                          .make(),
+                      height5,
+                      '${lot.availableSpaces}면'.text
+                          .color(lot.availableSpaces > 0 
+                              ? Theme.of(context).colorScheme.primary 
+                              : Theme.of(context).colorScheme.error)
+                          .size(20)
+                          .bold
+                          .make(),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            height10,
+            
+            // 주소
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
+                ),
+                width5,
+                Expanded(
+                  child: lot.address.text
+                      .color(Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8))
+                      .size(15)
+                      .make(),
+                ),
+              ],
+            ),
+            height10,
+            
+            // 길찾기 버튼
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _openNaverMap(lot),
+                icon: const Icon(Icons.directions, size: 20),
+                label: '네이버맵에서 길찾기'.text.size(16).bold.make(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _openNaverMap(ParkingLot lot) async {
+    // 네이버맵 딥링크 URL 생성
+    final url = Uri.parse(
+      'nmap://place?lat=${lot.latitude}&lng=${lot.longitude}&name=${Uri.encodeComponent(lot.name)}&appname=daeja'
+    );
+    
+    // 네이버맵 웹 URL (앱이 설치되지 않은 경우)
+    final webUrl = Uri.parse(
+      'https://map.naver.com/v5/search/${Uri.encodeComponent(lot.name)}'
+    );
+
+    try {
+      // 네이버맵 앱으로 열기 시도
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        // 앱이 없으면 웹으로 열기
+        await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      _showErrorDialog('네이버맵을 열 수 없습니다.');
+    }
   }
 
   void _showErrorDialog(String message) {

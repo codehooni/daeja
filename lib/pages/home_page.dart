@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../helper/location_service.dart';
+import '../models/parking_lot.dart';
 
 class HomePage extends StatefulWidget {
   final Function(NaverMapController)? onMapControllerReady;
@@ -123,68 +125,177 @@ class _HomePageState extends State<HomePage> {
       );
 
       marker.setOnTapListener((overlay) {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (_) => Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(
-              top: 4,
-              left: 16,
-              right: 16,
-              bottom: 48,
-            ),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    spacer,
-                    Container(
-                      width: 36,
-                      height: 5,
-                      padding: const EdgeInsets.all(8.0),
-                      margin: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    spacer,
-                  ],
-                ),
-                Row(
-                  children: [
-                    lot.name.text.bold
-                        .size(22.0)
-                        .color(Theme.of(context).colorScheme.onPrimaryContainer)
-                        .make(),
-                    width10,
-                    '전체: ${lot.totalSpaces}'.text.make(),
-                  ],
-                ),
-                height5,
-                '잔여: ${lot.availableSpaces}면'.text
-                    .color(Theme.of(context).colorScheme.primary)
-                    .bold
-                    .make(),
-                height10,
-                lot.address.text.make(),
-              ],
-            ),
-          ),
-        );
+        _showParkingInfoModal(lot);
       });
 
       controller.addOverlay(marker);
+    }
+  }
+
+  void _showParkingInfoModal(ParkingLot lot) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(
+          top: 4,
+          left: 16,
+          right: 16,
+          bottom: 48,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 핸들바
+            Row(
+              children: [
+                spacer,
+                Container(
+                  width: 36,
+                  height: 5,
+                  padding: const EdgeInsets.all(8.0),
+                  margin: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                spacer,
+              ],
+            ),
+            
+            // 주차장 이름
+            lot.name.text.bold
+                .size(24.0)
+                .color(Theme.of(context).colorScheme.onPrimaryContainer)
+                .make(),
+            height10,
+            
+            // 주차 현황
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      '전체 주차면'.text
+                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                          .size(14)
+                          .make(),
+                      height5,
+                      '${lot.totalSpaces}면'.text
+                          .color(Theme.of(context).colorScheme.onSurface)
+                          .size(20)
+                          .bold
+                          .make(),
+                    ],
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      '잔여 주차면'.text
+                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                          .size(14)
+                          .make(),
+                      height5,
+                      '${lot.availableSpaces}면'.text
+                          .color(lot.availableSpaces > 0 
+                              ? Theme.of(context).colorScheme.primary 
+                              : Theme.of(context).colorScheme.error)
+                          .size(20)
+                          .bold
+                          .make(),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            height10,
+            
+            // 주소
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
+                ),
+                width5,
+                Expanded(
+                  child: lot.address.text
+                      .color(Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8))
+                      .size(15)
+                      .make(),
+                ),
+              ],
+            ),
+            height10,
+            
+            // 길찾기 버튼
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _openNaverMap(lot),
+                icon: const Icon(Icons.directions, size: 20),
+                label: '네이버맵에서 길찾기'.text.size(16).bold.make(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openNaverMap(ParkingLot lot) async {
+    // 네이버맵 딥링크 URL 생성
+    final url = Uri.parse(
+      'nmap://place?lat=${lot.latitude}&lng=${lot.longitude}&name=${Uri.encodeComponent(lot.name)}&appname=daeja'
+    );
+    
+    // 네이버맵 웹 URL (앱이 설치되지 않은 경우)
+    final webUrl = Uri.parse(
+      'https://map.naver.com/v5/search/${Uri.encodeComponent(lot.name)}'
+    );
+
+    try {
+      // 네이버맵 앱으로 열기 시도
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        // 앱이 없으면 웹으로 열기
+        await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      _showErrorDialog('네이버맵을 열 수 없습니다.');
     }
   }
 

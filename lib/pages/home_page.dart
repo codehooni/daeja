@@ -75,9 +75,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> onMapReady(NaverMapController controller) async {
-    final lots = await ParkingService.fetchParkingLots();
+    try {
+      print("주차장 데이터 가져오기 시작...");
+      final lots = await ParkingService.fetchParkingLots();
+      print("주차장 데이터 ${lots.length}개 가져옴");
 
-    for (var lot in lots) {
+      for (var lot in lots) {
       final markerIcon = await buildParkingMarker(lot, context);
       final marker = NMarker(
         id: lot.id,
@@ -147,7 +150,34 @@ class _HomePageState extends State<HomePage> {
         );
       });
 
-      controller.addOverlay(marker);
+        controller.addOverlay(marker);
+      }
+    } catch (e) {
+      // 에러가 발생했을 때 사용자에게 알림 표시
+      print("에러 발생: $e");
+      if (mounted) {
+        print("에러 다이얼로그 표시");
+        _showErrorDialog(e.toString().replaceFirst('Exception: ', ''));
+      }
     }
+  }
+
+  // 에러 다이얼로그 표시 함수
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: '오류'.text.bold.make(),
+        content: message.text.make(),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: '확인'.text.make(),
+          ),
+        ],
+      ),
+    );
   }
 }

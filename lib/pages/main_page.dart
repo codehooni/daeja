@@ -32,9 +32,11 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     _pages = [
-      HomePage(onMapControllerReady: (controller) {
-        _mapController = controller;
-      }),
+      HomePage(
+        onMapControllerReady: (controller) {
+          _mapController = controller;
+        },
+      ),
       SettingsPage(),
     ];
   }
@@ -46,8 +48,11 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _showNearbyParkingLots() async {
-    final parkingProvider = Provider.of<ParkingProvider>(context, listen: false);
-    
+    final parkingProvider = Provider.of<ParkingProvider>(
+      context,
+      listen: false,
+    );
+
     try {
       // 현재 위치 가져오기
       final position = await LocationHelper.getPosition();
@@ -58,7 +63,7 @@ class _MainPageState extends State<MainPage> {
 
       // 주차장 데이터 가져오기
       await parkingProvider.fetchParkingLots();
-      
+
       if (parkingProvider.error != null) {
         _showErrorDialog(parkingProvider.error!);
         return;
@@ -72,7 +77,6 @@ class _MainPageState extends State<MainPage> {
 
       // 주차장 목록 모달 표시
       _showParkingListModal(nearbyLots, position);
-
     } catch (e) {
       _showErrorDialog('주차장 정보를 불러오는 중 오류가 발생했습니다.');
     }
@@ -90,38 +94,33 @@ class _MainPageState extends State<MainPage> {
         lot.latitude,
         lot.longitude,
       );
-      return {
-        'lot': lot,
-        'distance': distance,
-      };
+      return {'lot': lot, 'distance': distance};
     }).toList();
 
     // 거리순으로 정렬 후 상위 20개만 반환 (성능 최적화)
-    lotsWithDistance.sort((a, b) => (a['distance'] as double).compareTo(b['distance'] as double));
-    
-    return lotsWithDistance.length > 20 
-        ? lotsWithDistance.sublist(0, 20) 
+    lotsWithDistance.sort(
+      (a, b) => (a['distance'] as double).compareTo(b['distance'] as double),
+    );
+
+    return lotsWithDistance.length > 20
+        ? lotsWithDistance.sublist(0, 20)
         : lotsWithDistance;
   }
 
-  void _showParkingListModal(List<Map<String, dynamic>> nearbyLots, Position userPosition) {
+  void _showParkingListModal(
+    List<Map<String, dynamic>> nearbyLots,
+    Position userPosition,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.7,
-        padding: const EdgeInsets.only(
-          top: 4,
-          left: 16,
-          right: 16,
-          bottom: 48,
-        ),
+        padding: const EdgeInsets.only(top: 4, left: 16, right: 16, bottom: 48),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(16),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(
           children: [
@@ -142,7 +141,7 @@ class _MainPageState extends State<MainPage> {
                 spacer,
               ],
             ),
-            
+
             // 제목
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -151,7 +150,7 @@ class _MainPageState extends State<MainPage> {
                   .color(Theme.of(context).colorScheme.onPrimaryContainer)
                   .make(),
             ),
-            
+
             // 주차장 목록
             Expanded(
               child: ListView.builder(
@@ -176,41 +175,51 @@ class _MainPageState extends State<MainPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: lot.name.text.bold
-                                  .size(18.0)
-                                  .color(Theme.of(context).colorScheme.onSurface)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: lot.name.text.bold
+                                    .size(18.0)
+                                    .color(
+                                      Theme.of(context).colorScheme.onSurface,
+                                    )
+                                    .make(),
+                              ),
+                              distanceText.text
+                                  .size(14.0)
+                                  .color(Theme.of(context).colorScheme.primary)
+                                  .bold
                                   .make(),
-                            ),
-                            distanceText.text
-                                .size(14.0)
-                                .color(Theme.of(context).colorScheme.primary)
-                                .bold
-                                .make(),
-                          ],
-                        ),
-                        height5,
-                        Row(
-                          children: [
-                            '전체: ${lot.totalSpaces}면'.text
-                                .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
-                                .make(),
-                            width10,
-                            '잔여: ${lot.availableSpaces}면'.text
-                                .color(Theme.of(context).colorScheme.primary)
-                                .bold
-                                .make(),
-                          ],
-                        ),
-                        height5,
-                        lot.address.text
-                            .size(14.0)
-                            .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.6))
-                            .make(),
-                      ],
-                    ),
+                            ],
+                          ),
+                          height5,
+                          Row(
+                            children: [
+                              '전체: ${lot.totalSpaces}면'.text
+                                  .color(
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.7),
+                                  )
+                                  .make(),
+                              width10,
+                              '잔여: ${lot.availableSpaces}면'.text
+                                  .color(Theme.of(context).colorScheme.primary)
+                                  .bold
+                                  .make(),
+                            ],
+                          ),
+                          height5,
+                          lot.address.text
+                              .size(14.0)
+                              .color(
+                                Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
+                              )
+                              .make(),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -225,7 +234,7 @@ class _MainPageState extends State<MainPage> {
   Future<void> _onParkingLotTapped(ParkingLot lot) async {
     // 먼저 주변 주차장 목록 모달 닫기
     Navigator.of(context).pop();
-    
+
     // 홈 페이지로 이동
     if (_currentIndex != 0) {
       setState(() {
@@ -235,7 +244,7 @@ class _MainPageState extends State<MainPage> {
 
     // 잠시 대기 후 지도 이동 (화면 전환 완료 후)
     await Future.delayed(const Duration(milliseconds: 300));
-    
+
     if (_mapController != null) {
       // 지도를 해당 주차장 위치로 이동
       await _mapController!.updateCamera(
@@ -244,7 +253,7 @@ class _MainPageState extends State<MainPage> {
           zoom: 16,
         ),
       );
-      
+
       // 잠시 대기 후 주차장 정보 모달 표시
       await Future.delayed(const Duration(milliseconds: 500));
       _showParkingInfoModal(lot);
@@ -258,17 +267,10 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         width: double.infinity,
-        padding: const EdgeInsets.only(
-          top: 4,
-          left: 16,
-          right: 16,
-          bottom: 48,
-        ),
+        padding: const EdgeInsets.only(top: 4, left: 16, right: 16, bottom: 48),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(16),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -291,14 +293,14 @@ class _MainPageState extends State<MainPage> {
                 spacer,
               ],
             ),
-            
+
             // 주차장 이름
             lot.name.text.bold
                 .size(24.0)
                 .color(Theme.of(context).colorScheme.onPrimaryContainer)
                 .make(),
             height10,
-            
+
             // 주차 현황
             Container(
               padding: const EdgeInsets.all(16),
@@ -313,7 +315,11 @@ class _MainPageState extends State<MainPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       '전체 주차면'.text
-                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                          .color(
+                            Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.7),
+                          )
                           .size(14)
                           .make(),
                       height5,
@@ -327,20 +333,28 @@ class _MainPageState extends State<MainPage> {
                   Container(
                     width: 1,
                     height: 40,
-                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withOpacity(0.3),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       '잔여 주차면'.text
-                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                          .color(
+                            Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.7),
+                          )
                           .size(14)
                           .make(),
                       height5,
                       '${lot.availableSpaces}면'.text
-                          .color(lot.availableSpaces > 0 
-                              ? Theme.of(context).colorScheme.primary 
-                              : Theme.of(context).colorScheme.error)
+                          .color(
+                            lot.availableSpaces > 0
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.error,
+                          )
                           .size(20)
                           .bold
                           .make(),
@@ -350,26 +364,32 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
             height10,
-            
+
             // 주소
             Row(
               children: [
                 Icon(
                   Icons.location_on,
                   size: 20,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onPrimaryContainer.withOpacity(0.7),
                 ),
                 width5,
                 Expanded(
                   child: lot.address.text
-                      .color(Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8))
+                      .color(
+                        Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                      )
                       .size(15)
                       .make(),
                 ),
               ],
             ),
             height10,
-            
+
             // 버튼들
             Row(
               children: [
@@ -401,7 +421,9 @@ class _MainPageState extends State<MainPage> {
                     label: '공유'.text.size(14).bold.make(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.secondary,
-                      foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSecondary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -419,7 +441,8 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _shareParking(ParkingLot lot) async {
-    final shareText = '''
+    final shareText =
+        '''
 🅿️ ${lot.name}
 
 📍 주소: ${lot.address}
@@ -429,16 +452,13 @@ class _MainPageState extends State<MainPage> {
   • 잔여 ${lot.availableSpaces}면
   ${lot.availableSpaces == 0 ? '⚠️ 주차 불가' : '✅ 주차 가능'}
 
-📱 대제주 앱으로 실시간 주차 정보를 확인하세요!
+📱 대자 앱으로 실시간 주차 정보를 확인하세요!
 
 🗺️ 위치: https://map.naver.com/v5/search/${Uri.encodeComponent(lot.name)}
     ''';
 
     try {
-      await Share.share(
-        shareText,
-        subject: '🅿️ ${lot.name} 주차장 정보',
-      );
+      await Share.share(shareText, subject: '🅿️ ${lot.name} 주차장 정보');
     } catch (e) {
       _showErrorDialog('공유하는 중 오류가 발생했습니다.');
     }
@@ -447,12 +467,12 @@ class _MainPageState extends State<MainPage> {
   Future<void> _openNaverMap(ParkingLot lot) async {
     // 네이버맵 딥링크 URL 생성
     final url = Uri.parse(
-      'nmap://place?lat=${lot.latitude}&lng=${lot.longitude}&name=${Uri.encodeComponent(lot.name)}&appname=daeja'
+      'nmap://place?lat=${lot.latitude}&lng=${lot.longitude}&name=${Uri.encodeComponent(lot.name)}&appname=daeja',
     );
-    
+
     // 네이버맵 웹 URL (앱이 설치되지 않은 경우)
     final webUrl = Uri.parse(
-      'https://map.naver.com/v5/search/${Uri.encodeComponent(lot.name)}'
+      'https://map.naver.com/v5/search/${Uri.encodeComponent(lot.name)}',
     );
 
     try {

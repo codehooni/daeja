@@ -9,7 +9,9 @@
       "Bash(curl:*)",
       "Bash(rm:*)",
       "Bash(pod install:*)",
-      "Bash(open Runner.xcworkspace)"
+      "Bash(open Runner.xcworkspace)",
+      "Bash(open ios/Runner.xcworkspace)",
+      "Bash(killall:*)"
     ],
     "deny": [],
     "ask": []

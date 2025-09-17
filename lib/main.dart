@@ -6,7 +6,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // runApp 실행 이전이면 필요
+  WidgetsFlutterBinding.ensureInitialized();
 
   try {
     // Naver Map Init
@@ -52,3 +52,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

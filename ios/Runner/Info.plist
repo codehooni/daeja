@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Daeja</string>
+	<string>대자</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>daeja</string>
+	<string>대자</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -46,12 +46,21 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 
-    <!-- 앱 사용 중 위치 접근 -->
+    <!-- 위치 권한 설명 -->
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>앱 사용 중 위치 접근이 필요합니다.</string>
-
-    <!-- 앱이 항상 위치 접근 가능 (deprecated, iOS 11 이상은 아래 키로 대체) -->
+    <string>현재 위치 기반으로 주변 주차장 정보를 제공하기 위해 위치 접근이 필요합니다.</string>
+    
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>앱이 백그라운드에서도 위치를 사용하려면 필요합니다.</string>
+    <string>주차장 정보 제공을 위해 위치 접근이 필요합니다.</string>
+    
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>현재 위치 기반으로 주변 주차장 정보를 제공하기 위해 위치 접근이 필요합니다.</string>
+    
+    <!-- 앱 설명 -->
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>ko</string>
+        <string>en</string>
+    </array>
 </dict>
 </plist>

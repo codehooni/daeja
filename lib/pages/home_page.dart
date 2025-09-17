@@ -52,7 +52,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Position?>(
-      future: LocationHelper.getPosition(),
+      future: LocationHelper.getPosition().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => null,
+      ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
@@ -77,9 +80,10 @@ class _HomePageState extends State<HomePage> {
         }
 
         final pos = snapshot.data;
+        // 제주도 중심 좌표 (위치를 가져올 수 없는 경우)
         final location = NLatLng(
-          pos?.latitude ?? 37.5666,
-          pos?.longitude ?? 126.979,
+          pos?.latitude ?? 33.4996,
+          pos?.longitude ?? 126.5312,
         );
 
         return Stack(

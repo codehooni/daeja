@@ -4,7 +4,12 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(flutter pub:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(flutter:*)",
+      "Bash(curl:*)",
+      "Bash(rm:*)",
+      "Bash(pod install:*)",
+      "Bash(open Runner.xcworkspace)"
     ],
     "deny": [],
     "ask": []

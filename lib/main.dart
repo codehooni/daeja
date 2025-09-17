@@ -8,22 +8,26 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // runApp 실행 이전이면 필요
 
-  // Naver Map Init
-  await FlutterNaverMap().init(
-    clientId: 'wg25ls4i17',
-    onAuthFailed: (ex) {
-      switch (ex) {
-        case NQuotaExceededException(:final message):
-          print("사용량 초과 (message: $message)");
-          break;
-        case NUnauthorizedClientException() ||
-            NClientUnspecifiedException() ||
-            NAnotherAuthFailedException():
-          print("인증 실패: $ex");
-          break;
-      }
-    },
-  );
+  try {
+    // Naver Map Init
+    await FlutterNaverMap().init(
+      clientId: 'wg25ls4i17',
+      onAuthFailed: (ex) {
+        switch (ex) {
+          case NQuotaExceededException(:final message):
+            print("사용량 초과 (message: $message)");
+            break;
+          case NUnauthorizedClientException() ||
+              NClientUnspecifiedException() ||
+              NAnotherAuthFailedException():
+            print("인증 실패: $ex");
+            break;
+        }
+      },
+    );
+  } catch (e) {
+    print("Naver Map 초기화 실패: $e");
+  }
 
   runApp(
     MultiProvider(

@@ -11,7 +11,8 @@
       "Bash(pod install:*)",
       "Bash(open Runner.xcworkspace)",
       "Bash(open ios/Runner.xcworkspace)",
-      "Bash(killall:*)"
+      "Bash(killall:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

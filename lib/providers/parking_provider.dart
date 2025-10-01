@@ -11,6 +11,7 @@ class ParkingProvider with ChangeNotifier {
   List<ParkingLot> get parkingLots => _parkingLots;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  DateTime? get lastFetchTime => _lastFetchTime;
   
   // 캐시 유효성 확인 (3분간 유효)
   bool get _isCacheValid {

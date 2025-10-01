@@ -130,6 +130,19 @@ class _HomePageState extends State<HomePage> {
                     icon: Icons.my_location,
                     onTap: () => _moveToMyLocation(),
                   ),
+                  const SizedBox(height: 10),
+                  Consumer<ParkingProvider>(
+                    builder: (context, provider, child) {
+                      return MapController(
+                        icon: Icons.refresh,
+                        onTap: () {
+                          if (!provider.isLoading) {
+                            _refreshParkingData();
+                          }
+                        },
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -246,45 +259,76 @@ class _HomePageState extends State<HomePage> {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      '전체 주차면'.text
-                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
-                          .size(14)
-                          .make(),
-                      height5,
-                      '${lot.totalSpaces}면'.text
-                          .color(Theme.of(context).colorScheme.onSurface)
-                          .size(20)
-                          .bold
-                          .make(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          '전체 주차면'.text
+                              .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                              .size(14)
+                              .make(),
+                          height5,
+                          '${lot.totalSpaces}면'.text
+                              .color(Theme.of(context).colorScheme.onSurface)
+                              .size(20)
+                              .bold
+                              .make(),
+                        ],
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          '잔여 주차면'.text
+                              .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                              .size(14)
+                              .make(),
+                          height5,
+                          '${lot.availableSpaces}면'.text
+                              .color(lot.availableSpaces > 0
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.error)
+                              .size(20)
+                              .bold
+                              .make(),
+                        ],
+                      ),
                     ],
                   ),
+                  height10,
                   Container(
-                    width: 1,
-                    height: 40,
-                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      '잔여 주차면'.text
-                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
-                          .size(14)
-                          .make(),
-                      height5,
-                      '${lot.availableSpaces}면'.text
-                          .color(lot.availableSpaces > 0 
-                              ? Theme.of(context).colorScheme.primary 
-                              : Theme.of(context).colorScheme.error)
-                          .size(20)
-                          .bold
-                          .make(),
-                    ],
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                        width5,
+                        Consumer<ParkingProvider>(
+                          builder: (context, provider, child) {
+                            return _formatUpdateTime(provider.lastFetchTime).text
+                                .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.6))
+                                .size(12)
+                                .make();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -412,43 +456,74 @@ class _HomePageState extends State<HomePage> {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              child: Column(
                 children: [
-                  Column(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      '전체 주차면'.text
-                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
-                          .size(14)
-                          .make(),
-                      height5,
-                      '${cluster.totalSpaces}면'.text
-                          .color(Theme.of(context).colorScheme.onSurface)
-                          .size(18)
-                          .bold
-                          .make(),
+                      Column(
+                        children: [
+                          '전체 주차면'.text
+                              .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                              .size(14)
+                              .make(),
+                          height5,
+                          '${cluster.totalSpaces}면'.text
+                              .color(Theme.of(context).colorScheme.onSurface)
+                              .size(18)
+                              .bold
+                              .make(),
+                        ],
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                      ),
+                      Column(
+                        children: [
+                          '잔여 주차면'.text
+                              .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
+                              .size(14)
+                              .make(),
+                          height5,
+                          '${cluster.totalAvailableSpaces}면'.text
+                              .color(cluster.totalAvailableSpaces > 0
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.error)
+                              .size(18)
+                              .bold
+                              .make(),
+                        ],
+                      ),
                     ],
                   ),
+                  height10,
                   Container(
-                    width: 1,
-                    height: 40,
-                    color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-                  ),
-                  Column(
-                    children: [
-                      '잔여 주차면'.text
-                          .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.7))
-                          .size(14)
-                          .make(),
-                      height5,
-                      '${cluster.totalAvailableSpaces}면'.text
-                          .color(cluster.totalAvailableSpaces > 0 
-                              ? Theme.of(context).colorScheme.primary 
-                              : Theme.of(context).colorScheme.error)
-                          .size(18)
-                          .bold
-                          .make(),
-                    ],
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                        width5,
+                        Consumer<ParkingProvider>(
+                          builder: (context, provider, child) {
+                            return _formatUpdateTime(provider.lastFetchTime).text
+                                .color(Theme.of(context).colorScheme.onSurface.withOpacity(0.6))
+                                .size(12)
+                                .make();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -599,6 +674,56 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       _showErrorDialog('위치 이동 중 오류가 발생했습니다.');
+    }
+  }
+
+  // 주차장 데이터 새로고침
+  Future<void> _refreshParkingData() async {
+    final parkingProvider = Provider.of<ParkingProvider>(context, listen: false);
+
+    // 새로고침 시작
+    await parkingProvider.refreshParkingLots();
+
+    if (parkingProvider.error != null) {
+      _showErrorDialog(parkingProvider.error!);
+      return;
+    }
+
+    // 새로운 데이터로 마커 업데이트
+    _currentParkingLots = parkingProvider.parkingLots;
+
+    if (mapController != null && _currentParkingLots.isNotEmpty) {
+      final cameraPosition = await mapController!.getCameraPosition();
+      await _updateMarkers(mapController!, cameraPosition.zoom, _currentParkingLots);
+    }
+
+    // 성공 메시지 표시
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: '주차장 정보가 업데이트되었습니다.'.text.make(),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  // 업데이트 시간 포맷팅
+  String _formatUpdateTime(DateTime? time) {
+    if (time == null) return '업데이트 시간 없음';
+
+    final now = DateTime.now();
+    final diff = now.difference(time);
+
+    if (diff.inMinutes < 1) {
+      return '방금 전';
+    } else if (diff.inMinutes < 60) {
+      return '${diff.inMinutes}분 전';
+    } else if (diff.inHours < 24) {
+      return '${diff.inHours}시간 전';
+    } else {
+      return '${time.month}/${time.day} ${time.hour}:${time.minute.toString().padLeft(2, '0')}';
     }
   }
 }

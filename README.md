@@ -52,12 +52,16 @@ dependencies:
 
 ## 📸 스크린샷
 
-> 📌 **참고**: 여기에 앱 스크린샷 3장을 넣어주세요!
+> 📌 **참고**:
 
 <p align="center">
-  <img width="1290" height="2796" alt="메인 화면" src="https://github.com/user-attachments/assets/04ec1480-8057-4402-94e9-8cb4b0379cf5" />
-  <img width="1290" height="2796" alt="근처 주차장목록" src="https://github.com/user-attachments/assets/bc8a2521-78e0-48bf-8029-ab730f155eca" />
-  <img width="1290" height="2796" alt="상세 화면" src="https://github.com/user-attachments/assets/ce667c00-e53a-4814-8beb-39519f744f58" />
+  <img width="250" alt="메인 화면" src="https://github.com/user-attachments/assets/04ec1480-8057-4402-94e9-8cb4b0379cf5" />
+  <img width="250" alt="근처 주차장목록" src="https://github.com/user-attachments/assets/bc8a2521-78e0-48bf-8029-ab730f155eca" />
+  <img width="250" alt="상세 화면" src="https://github.com/user-attachments/assets/ce667c00-e53a-4814-8beb-39519f744f58" />
+</p>
+
+<p align="center">
+  <em>메인 화면 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 근처 주차장 목록 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 상세 화면</em>
 </p>
 
 <br>

@@ -55,7 +55,7 @@ dependencies:
 > 📌 **참고**: 여기에 앱 스크린샷 3장을 넣어주세요!
 
 <p align="center">
-  <img width="250" alt="메인화면" src="https://github.com/user-attachments/assets/이미지1-URL" />
+  <img width="1290" height="2796" alt="메인화면" src="https://github.com/user-attachments/assets/04ec1480-8057-4402-94e9-8cb4b0379cf5" />
   <img width="250" alt="지도화면" src="https://github.com/user-attachments/assets/이미지2-URL" />
   <img width="250" alt="상세화면" src="https://github.com/user-attachments/assets/이미지3-URL" />
 </p>

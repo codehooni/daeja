@@ -54,13 +54,11 @@ dependencies:
 
 > 📌 **참고**: 여기에 앱 스크린샷 3장을 넣어주세요!
 
-```markdown
-예시:
-![메인 화면] <img width="1290" height="2796" alt="image" src="https://github.com/user-attachments/assets/4777ed46-f0d9-4d8b-90fa-fde78ad501d2" /> 
-![주차장 목록] <img width="1290" height="2796" alt="image" src="https://github.com/user-attachments/assets/91d60e1d-a570-4e1d-88a7-fa13c63621fd" />
-![지도 화면] <img width="1290" height="2796" alt="image" src="https://github.com/user-attachments/assets/a705a10d-f9ea-4976-ab6b-fcba0445e149" />
-
-```
+<p align="center">
+  <img width="250" alt="메인화면" src="https://github.com/user-attachments/assets/이미지1-URL" />
+  <img width="250" alt="지도화면" src="https://github.com/user-attachments/assets/이미지2-URL" />
+  <img width="250" alt="상세화면" src="https://github.com/user-attachments/assets/이미지3-URL" />
+</p>
 
 <br>
 

@@ -108,9 +108,12 @@ class _HomePageState extends State<HomePage> {
                   target: location,
                   zoom: 14,
                 ),
+                locationButtonEnable: true,
+                indoorEnable: true,
               ),
               onMapReady: (controller) {
                 mapController = controller;
+                _enableLocationTracking(controller);
                 onMapReady(controller);
                 widget.onMapControllerReady?.call(controller);
               },
@@ -721,6 +724,16 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  // 위치 추적 활성화
+  Future<void> _enableLocationTracking(NaverMapController controller) async {
+    try {
+      final locationOverlay = await controller.getLocationOverlay();
+      await locationOverlay.setIsVisible(true);
+    } catch (e) {
+      print('위치 추적 활성화 실패: $e');
+    }
   }
 
   // 내 위치로 이동하기 (카메라만 이동)

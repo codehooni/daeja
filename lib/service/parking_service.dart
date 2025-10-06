@@ -3,12 +3,15 @@ import 'dart:io';
 
 import 'package:daeja/models/parking_lot.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ParkingService {
-  static const String infoUrl =
-      "http://api.jejuits.go.kr/api/infoParkingInfoList?code=860725";
-  static const String stateUrl =
-      "http://api.jejuits.go.kr/api/infoParkingStateList?code=860725";
+  static String get _apiCode => dotenv.env['JEJU_API_CODE'] ?? '';
+
+  static String get infoUrl =>
+      "http://api.jejuits.go.kr/api/infoParkingInfoList?code=$_apiCode";
+  static String get stateUrl =>
+      "http://api.jejuits.go.kr/api/infoParkingStateList?code=$_apiCode";
 
   static Future<List<ParkingLot>> fetchParkingLots() async {
     try {

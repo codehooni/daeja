@@ -52,15 +52,22 @@ class ParkingService {
         return ParkingLot.fromJson(i, state);
       }).toList();
 
-    } on SocketException {
+    } on SocketException catch (e) {
       // 인터넷 연결 문제
+      print("SocketException: $e");
       throw Exception("인터넷 연결을 확인해주세요.");
-    } on FormatException {
+    } on FormatException catch (e) {
       // JSON 파싱 에러
+      print("FormatException: $e");
       throw Exception("데이터 형식에 문제가 있습니다.");
-    } catch (e) {
+    } catch (e, stackTrace) {
       // 기타 모든 에러
-      throw Exception("주차장 정보를 불러오는 중 오류가 발생했습니다.");
+      print("Error fetching parking lots: $e");
+      print("StackTrace: $stackTrace");
+      print("API Code: $_apiCode");
+      print("Info URL: $infoUrl");
+      print("State URL: $stateUrl");
+      throw Exception("주차장 정보를 불러오는 중 오류가 발생했습니다: $e");
     }
   }
 }

@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:daeja/ceyhun/constant_widget.dart';
 import 'package:daeja/ceyhun/my_text_extension.dart';
 import 'package:daeja/providers/parking_provider.dart';
-import 'package:daeja/widgets/map_controller.dart';
 import 'package:daeja/widgets/parking_marker.dart';
 import 'package:daeja/widgets/cluster_marker.dart';
 import 'package:flutter/material.dart';
@@ -125,39 +125,148 @@ class _HomePageState extends State<HomePage> {
               },
             ),
 
+            // 새로고침 버튼 (오른쪽 위) - Liquid Glass 효과
             Positioned(
-              right: 4,
+              right: 16,
+              top: 60,
+              child: Consumer<ParkingProvider>(
+                builder: (context, provider, child) {
+                  return ClipOval(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            if (!provider.isLoading) {
+                              _refreshParkingData();
+                            }
+                          },
+                          icon: Icon(
+                            Icons.refresh,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // 내 위치 버튼 (왼쪽 아래) - Liquid Glass 효과
+            Positioned(
+              left: 16,
+              bottom: 120,
+              child: ClipOval(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: 35,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withOpacity(0.3),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () => _moveToMyLocation(),
+                      icon: Icon(
+                        Icons.my_location,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // 확대/축소 버튼 (오른쪽 아래) - Liquid Glass 효과
+            Positioned(
+              right: 16,
               bottom: 120,
               child: Column(
                 children: [
-                  MapController(
-                    icon: Icons.add,
-                    onTap: () =>
-                        mapController?.updateCamera(NCameraUpdate.zoomIn()),
+                  ClipOval(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () => mapController?.updateCamera(
+                            NCameraUpdate.zoomIn(),
+                          ),
+                          icon: Icon(
+                            Icons.add,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  MapController(
-                    icon: Icons.remove,
-                    onTap: () =>
-                        mapController?.updateCamera(NCameraUpdate.zoomOut()),
-                  ),
-                  const SizedBox(height: 10),
-                  MapController(
-                    icon: Icons.my_location,
-                    onTap: () => _moveToMyLocation(),
-                  ),
-                  const SizedBox(height: 10),
-                  Consumer<ParkingProvider>(
-                    builder: (context, provider, child) {
-                      return MapController(
-                        icon: Icons.refresh,
-                        onTap: () {
-                          if (!provider.isLoading) {
-                            _refreshParkingData();
-                          }
-                        },
-                      );
-                    },
+                  ClipOval(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () => mapController?.updateCamera(
+                            NCameraUpdate.zoomOut(),
+                          ),
+                          icon: Icon(
+                            Icons.remove,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -352,7 +461,7 @@ class _HomePageState extends State<HomePage> {
                     ).colorScheme.outline.withOpacity(0.3),
                   ),
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       '잔여 주차면'.text
                           .color(
@@ -604,50 +713,187 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final lot = cluster.parkingLots[index];
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: lot.name.text.bold
-                          .size(16.0)
-                          .color(Theme.of(context).colorScheme.onSurface)
-                          .make(),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          height5,
-                          Row(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () async {
+                          Navigator.of(context).pop();
+                          // 카메라를 해당 주차장 위치로 이동
+                          if (mapController != null) {
+                            await mapController!.updateCamera(
+                              NCameraUpdate.withParams(
+                                target: NLatLng(lot.latitude, lot.longitude),
+                                zoom: 16,
+                              ),
+                            );
+                          }
+                          _showParkingInfoModal(lot);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              '전체: ${lot.totalSpaces}면'.text
-                                  .color(
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface.withOpacity(0.7),
-                                  )
-                                  .size(12)
-                                  .make(),
-                              width10,
-                              '잔여: ${lot.availableSpaces}면'.text
-                                  .color(
-                                    lot.availableSpaces > 0
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context).colorScheme.error,
-                                  )
-                                  .size(12)
-                                  .bold
-                                  .make(),
+                              // 주차장 이름
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.local_parking,
+                                    size: 20,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  width5,
+                                  Expanded(
+                                    child: lot.name.text.bold
+                                        .size(16.0)
+                                        .color(
+                                          Theme.of(context).colorScheme.onSurface,
+                                        )
+                                        .make(),
+                                  ),
+                                  // 주차 가능 여부 뱃지
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: lot.availableSpaces > 0
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withOpacity(0.1)
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .error
+                                              .withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: (lot.availableSpaces > 0
+                                            ? '주차 가능'
+                                            : '만차')
+                                        .text
+                                        .size(11)
+                                        .bold
+                                        .color(
+                                          lot.availableSpaces > 0
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .error,
+                                        )
+                                        .make(),
+                                  ),
+                                ],
+                              ),
+                              height10,
+                              // 주차 현황
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer
+                                            .withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          '전체 주차면'.text
+                                              .size(11)
+                                              .color(
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withOpacity(0.6),
+                                              )
+                                              .make(),
+                                          const SizedBox(height: 4),
+                                          '${lot.totalSpaces}면'.text
+                                              .size(16)
+                                              .bold
+                                              .color(
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              )
+                                              .make(),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  width10,
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: (lot.availableSpaces > 0
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .error)
+                                            .withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          '잔여 주차면'.text
+                                              .size(11)
+                                              .color(
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withOpacity(0.6),
+                                              )
+                                              .make(),
+                                          const SizedBox(height: 4),
+                                          '${lot.availableSpaces}면'.text
+                                              .size(16)
+                                              .bold
+                                              .color(
+                                                lot.availableSpaces > 0
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .primary
+                                                    : Theme.of(context)
+                                                        .colorScheme
+                                                        .error,
+                                              )
+                                              .make(),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        _showParkingInfoModal(lot);
-                      },
                     ),
                   );
                 },
@@ -671,7 +917,7 @@ class _HomePageState extends State<HomePage> {
   • 잔여 ${lot.availableSpaces}면
   ${lot.availableSpaces == 0 ? '⚠️ 주차 불가' : '✅ 주차 가능'}
 
-📱 대제주 앱으로 실시간 주차 정보를 확인하세요!
+📱 대자 앱으로 실시간 주차 정보를 확인하세요!
 
 🗺️ 위치: https://map.naver.com/v5/search/${Uri.encodeComponent(lot.name)}
     ''';
@@ -729,8 +975,14 @@ class _HomePageState extends State<HomePage> {
   // 위치 추적 활성화
   Future<void> _enableLocationTracking(NaverMapController controller) async {
     try {
-      final locationOverlay = await controller.getLocationOverlay();
-      await locationOverlay.setIsVisible(true);
+      final position = await LocationHelper.getPosition();
+      if (position != null) {
+        final locationOverlay = await controller.getLocationOverlay();
+        locationOverlay.setIsVisible(true);
+        locationOverlay.setPosition(
+          NLatLng(position.latitude, position.longitude),
+        );
+      }
     } catch (e) {
       print('위치 추적 활성화 실패: $e');
     }
@@ -750,7 +1002,7 @@ class _HomePageState extends State<HomePage> {
         await mapController!.updateCamera(
           NCameraUpdate.withParams(
             target: NLatLng(position.latitude, position.longitude),
-            zoom: 16,
+            zoom: 14,
           ),
         );
       }

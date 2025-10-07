@@ -54,10 +54,25 @@ class _MainPageState extends State<MainPage> {
     );
 
     try {
+      // 권한 상태 먼저 확인
+      final permissionStatus = await LocationHelper.checkPermissionStatus();
+
+      // 권한이 영구적으로 거부된 경우
+      if (permissionStatus == LocationPermissionStatus.deniedForever) {
+        _showPermissionSettingsDialog();
+        return;
+      }
+
+      // 위치 서비스가 비활성화된 경우
+      if (permissionStatus == LocationPermissionStatus.serviceDisabled) {
+        _showLocationServiceDialog();
+        return;
+      }
+
       // 현재 위치 가져오기
       final position = await LocationHelper.getPosition();
       if (position == null) {
-        _showErrorDialog('현재 위치를 가져올 수 없습니다.');
+        _showErrorDialog('현재 위치를 가져올 수 없습니다.\n위치 권한을 확인해주세요.');
         return;
       }
 
@@ -506,6 +521,54 @@ class _MainPageState extends State<MainPage> {
               Navigator.of(context).pop();
             },
             child: '확인'.text.make(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 위치 권한 설정 안내 다이얼로그
+  void _showPermissionSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: '위치 권한 필요'.text.bold.make(),
+        content: '위치 권한이 거부되었습니다.\n설정에서 위치 권한을 허용해주세요.'.text.make(),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: '취소'.text.make(),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await Geolocator.openAppSettings();
+            },
+            child: '설정으로 이동'.text.bold.make(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 위치 서비스 활성화 안내 다이얼로그
+  void _showLocationServiceDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: '위치 서비스 필요'.text.bold.make(),
+        content: '위치 서비스가 비활성화되어 있습니다.\n설정에서 위치 서비스를 활성화해주세요.'.text.make(),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: '확인'.text.make(),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await Geolocator.openLocationSettings();
+            },
+            child: '설정으로 이동'.text.bold.make(),
           ),
         ],
       ),

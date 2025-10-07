@@ -163,62 +163,68 @@ class _MainPageState extends State<MainPage> {
                       ? '${distance.round()}m'
                       : '${(distance / 1000).toStringAsFixed(1)}km';
 
-                  return GestureDetector(
-                    onTap: () => _onParkingLotTapped(lot),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
                         borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                        onTap: () => _onParkingLotTapped(lot),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: lot.name.text.bold
-                                    .size(18.0)
-                                    .color(
-                                      Theme.of(context).colorScheme.onSurface,
-                                    )
-                                    .make(),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: lot.name.text.bold
+                                        .size(18.0)
+                                        .color(
+                                          Theme.of(context).colorScheme.onSurface,
+                                        )
+                                        .make(),
+                                  ),
+                                  distanceText.text
+                                      .size(14.0)
+                                      .color(Theme.of(context).colorScheme.primary)
+                                      .bold
+                                      .make(),
+                                ],
                               ),
-                              distanceText.text
+                              height5,
+                              Row(
+                                children: [
+                                  '전체: ${lot.totalSpaces}면'.text
+                                      .color(
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface.withOpacity(0.7),
+                                      )
+                                      .make(),
+                                  width10,
+                                  '잔여: ${lot.availableSpaces}면'.text
+                                      .color(Theme.of(context).colorScheme.primary)
+                                      .bold
+                                      .make(),
+                                ],
+                              ),
+                              height5,
+                              lot.address.text
                                   .size(14.0)
-                                  .color(Theme.of(context).colorScheme.primary)
-                                  .bold
-                                  .make(),
-                            ],
-                          ),
-                          height5,
-                          Row(
-                            children: [
-                              '전체: ${lot.totalSpaces}면'.text
                                   .color(
                                     Theme.of(
                                       context,
-                                    ).colorScheme.onSurface.withOpacity(0.7),
+                                    ).colorScheme.onSurface.withOpacity(0.6),
                                   )
-                                  .make(),
-                              width10,
-                              '잔여: ${lot.availableSpaces}면'.text
-                                  .color(Theme.of(context).colorScheme.primary)
-                                  .bold
                                   .make(),
                             ],
                           ),
-                          height5,
-                          lot.address.text
-                              .size(14.0)
-                              .color(
-                                Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.6),
-                              )
-                              .make(),
-                        ],
+                        ),
                       ),
                     ),
                   );

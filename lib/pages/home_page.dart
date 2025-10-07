@@ -108,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                   target: location,
                   zoom: 14,
                 ),
-                locationButtonEnable: true,
+                locationButtonEnable: false,
                 indoorEnable: true,
               ),
               onMapReady: (controller) {
@@ -167,10 +167,44 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
+            // 나침반 정렬 버튼 (오른쪽 위, 새로고침 버튼 아래) - Liquid Glass 효과
+            Positioned(
+              right: 16,
+              top: 105,
+              child: ClipOval(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: 35,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withOpacity(0.3),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () => _resetMapOrientation(),
+                      icon: Icon(
+                        Icons.navigation,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             // 내 위치 버튼 (왼쪽 아래) - Liquid Glass 효과
             Positioned(
               left: 16,
-              bottom: 120,
+              bottom: kBottomNavigationBarHeight + 70,
               child: ClipOval(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -204,7 +238,7 @@ class _HomePageState extends State<HomePage> {
             // 확대/축소 버튼 (오른쪽 아래) - Liquid Glass 효과
             Positioned(
               right: 16,
-              bottom: 120,
+              bottom: kBottomNavigationBarHeight + 70,
               child: Column(
                 children: [
                   ClipOval(
@@ -713,17 +747,10 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final lot = cluster.parkingLots[index];
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: 8),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
                     ),
                     child: Material(
                       color: Colors.transparent,
@@ -747,149 +774,36 @@ class _HomePageState extends State<HomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 주차장 이름
+                              lot.name.text.bold
+                                  .size(18.0)
+                                  .color(Theme.of(context).colorScheme.onSurface)
+                                  .make(),
+                              height5,
                               Row(
                                 children: [
-                                  Icon(
-                                    Icons.local_parking,
-                                    size: 20,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                  width5,
-                                  Expanded(
-                                    child: lot.name.text.bold
-                                        .size(16.0)
-                                        .color(
-                                          Theme.of(context).colorScheme.onSurface,
-                                        )
-                                        .make(),
-                                  ),
-                                  // 주차 가능 여부 뱃지
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: lot.availableSpaces > 0
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                              .withOpacity(0.1)
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .error
-                                              .withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: (lot.availableSpaces > 0
-                                            ? '주차 가능'
-                                            : '만차')
-                                        .text
-                                        .size(11)
-                                        .bold
-                                        .color(
-                                          lot.availableSpaces > 0
-                                              ? Theme.of(context)
-                                                  .colorScheme
-                                                  .primary
-                                              : Theme.of(context)
-                                                  .colorScheme
-                                                  .error,
-                                        )
-                                        .make(),
-                                  ),
-                                ],
-                              ),
-                              height10,
-                              // 주차 현황
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primaryContainer
-                                            .withOpacity(0.3),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          '전체 주차면'.text
-                                              .size(11)
-                                              .color(
-                                                Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface
-                                                    .withOpacity(0.6),
-                                              )
-                                              .make(),
-                                          const SizedBox(height: 4),
-                                          '${lot.totalSpaces}면'.text
-                                              .size(16)
-                                              .bold
-                                              .color(
-                                                Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface,
-                                              )
-                                              .make(),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                                  '전체: ${lot.totalSpaces}면'.text
+                                      .color(
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface.withOpacity(0.7),
+                                      )
+                                      .make(),
                                   width10,
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: (lot.availableSpaces > 0
-                                                ? Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                : Theme.of(context)
-                                                    .colorScheme
-                                                    .error)
-                                            .withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          '잔여 주차면'.text
-                                              .size(11)
-                                              .color(
-                                                Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface
-                                                    .withOpacity(0.6),
-                                              )
-                                              .make(),
-                                          const SizedBox(height: 4),
-                                          '${lot.availableSpaces}면'.text
-                                              .size(16)
-                                              .bold
-                                              .color(
-                                                lot.availableSpaces > 0
-                                                    ? Theme.of(context)
-                                                        .colorScheme
-                                                        .primary
-                                                    : Theme.of(context)
-                                                        .colorScheme
-                                                        .error,
-                                              )
-                                              .make(),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                                  '잔여: ${lot.availableSpaces}면'.text
+                                      .color(Theme.of(context).colorScheme.primary)
+                                      .bold
+                                      .make(),
                                 ],
                               ),
+                              height5,
+                              lot.address.text
+                                  .size(14.0)
+                                  .color(
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.6),
+                                  )
+                                  .make(),
                             ],
                           ),
                         ),
@@ -1008,6 +922,21 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       _showErrorDialog('위치 이동 중 오류가 발생했습니다.');
+    }
+  }
+
+  // 지도 방향을 북쪽으로 재설정
+  Future<void> _resetMapOrientation() async {
+    if (mapController != null) {
+      final cameraPosition = await mapController!.getCameraPosition();
+      await mapController!.updateCamera(
+        NCameraUpdate.withParams(
+          target: cameraPosition.target,
+          zoom: cameraPosition.zoom,
+          bearing: 0, // 북쪽이 위로 오도록 설정
+          tilt: 0, // 수평으로 설정
+        ),
+      );
     }
   }
 

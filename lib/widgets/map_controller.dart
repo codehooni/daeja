@@ -21,25 +21,32 @@ class MapController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Tap(
       onTap: onTap,
       child: Container(
         margin:
-            margin ?? const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
+            margin ?? const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.white,
+          color: backgroundColor ?? (isDark
+            ? Theme.of(context).colorScheme.surface
+            : Colors.white),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 4,
+              color: Colors.black.withOpacity(isDark ? 0.4 : 0.2),
+              blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Icon(icon, color: iconColor ?? Colors.black),
+        child: Icon(
+          icon,
+          color: iconColor ?? Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }

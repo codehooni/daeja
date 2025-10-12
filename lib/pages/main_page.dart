@@ -1,5 +1,6 @@
 import 'package:daeja/ceyhun/constant_widget.dart';
 import 'package:daeja/ceyhun/my_text_extension.dart';
+import 'package:daeja/dialogs/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -200,13 +201,17 @@ class _MainPageState extends State<MainPage> {
                                     child: lot.name.text.bold
                                         .size(18.0)
                                         .color(
-                                          Theme.of(context).colorScheme.onSurface,
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                         )
                                         .make(),
                                   ),
                                   distanceText.text
                                       .size(14.0)
-                                      .color(Theme.of(context).colorScheme.primary)
+                                      .color(
+                                        Theme.of(context).colorScheme.primary,
+                                      )
                                       .bold
                                       .make(),
                                 ],
@@ -216,14 +221,15 @@ class _MainPageState extends State<MainPage> {
                                 children: [
                                   '전체: ${lot.totalSpaces}면'.text
                                       .color(
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface.withOpacity(0.7),
+                                        Theme.of(context).colorScheme.onSurface
+                                            .withOpacity(0.7),
                                       )
                                       .make(),
                                   width10,
                                   '잔여: ${lot.availableSpaces}면'.text
-                                      .color(Theme.of(context).colorScheme.primary)
+                                      .color(
+                                        Theme.of(context).colorScheme.primary,
+                                      )
                                       .bold
                                       .make(),
                                 ],
@@ -510,68 +516,24 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: '오류'.text.bold.make(),
-        content: message.text.make(),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: '확인'.text.make(),
-          ),
-        ],
-      ),
-    );
+    Dialogs.showErrorDialog(context, message);
   }
 
   // 위치 권한 설정 안내 다이얼로그
   void _showPermissionSettingsDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: '위치 권한 필요'.text.bold.make(),
-        content: '위치 권한이 거부되었습니다.\n설정에서 위치 권한을 허용해주세요.'.text.make(),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: '취소'.text.make(),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await Geolocator.openAppSettings();
-            },
-            child: '설정으로 이동'.text.bold.make(),
-          ),
-        ],
-      ),
+    Dialogs.showSettingsDialog(
+      context,
+      '위치 권한 필요',
+      '위치 권한이 거부되었습니다.\n설정에서 위치 권한을 허용해주세요.',
     );
   }
 
   // 위치 서비스 활성화 안내 다이얼로그
   void _showLocationServiceDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: '위치 서비스 필요'.text.bold.make(),
-        content: '위치 서비스가 비활성화되어 있습니다.\n설정에서 위치 서비스를 활성화해주세요.'.text.make(),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: '확인'.text.make(),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await Geolocator.openLocationSettings();
-            },
-            child: '설정으로 이동'.text.bold.make(),
-          ),
-        ],
-      ),
+    Dialogs.showSettingsDialog(
+      context,
+      '위치 서비스 필요',
+      '위치 서비스가 비활성화되어 있습니다.\n설정에서 위치 서비스를 활성화해주세요.',
     );
   }
 
@@ -594,17 +556,8 @@ class _MainPageState extends State<MainPage> {
               icon: Icons.home,
               onPressed: () => _onItemTapped(0),
             ),
-            // MyBottomNavigationItem(
-            //   isMe: _currentIndex == 1,
-            //   icon: Icons.search,
-            //   onPressed: () => _onItemTapped(1),
-            // ),
             SizedBox(),
-            // MyBottomNavigationItem(
-            //   isMe: _currentIndex == 2,
-            //   icon: Icons.history,
-            //   onPressed: () => _onItemTapped(2),
-            // ),
+
             MyBottomNavigationItem(
               isMe: _currentIndex == 1,
               icon: Icons.settings,

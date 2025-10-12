@@ -79,5 +79,14 @@
             </dict>
         </dict>
     </dict>
+
+    <!-- 네비게이션 실행을 위한 목록 -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>nmap</string>
+        <string>kakaomap</string>
+        <string>tmap</string>
+    </array>
+
 </dict>
 </plist>

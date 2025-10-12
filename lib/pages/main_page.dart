@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../widgets/my_bottom_navigation_item.dart';
 import '../providers/parking_provider.dart';
 import '../helper/location_service.dart';
+import '../helper/launch_map_helper.dart';
 import '../models/parking_lot.dart';
 
 import 'home_page.dart';
@@ -26,6 +26,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   NaverMapController? _mapController;
+  Position? _currentPosition;
 
   late final List<Widget> _pages;
 
@@ -71,8 +72,8 @@ class _MainPageState extends State<MainPage> {
       }
 
       // 현재 위치 가져오기
-      final position = await LocationHelper.getPosition();
-      if (position == null) {
+      _currentPosition = await LocationHelper.getPosition();
+      if (_currentPosition == null) {
         _showErrorDialog('현재 위치를 가져올 수 없습니다.\n위치 권한을 확인해주세요.');
         return;
       }
@@ -88,11 +89,11 @@ class _MainPageState extends State<MainPage> {
       // 거리순으로 정렬된 주차장 목록 가져오기
       final nearbyLots = _getNearbyParkingLots(
         parkingProvider.parkingLots,
-        position,
+        _currentPosition!,
       );
 
       // 주차장 목록 모달 표시
-      _showParkingListModal(nearbyLots, position);
+      _showParkingListModal(nearbyLots, _currentPosition!);
     } catch (e) {
       _showErrorDialog('주차장 정보를 불러오는 중 오류가 발생했습니다.');
     }
@@ -424,7 +425,7 @@ class _MainPageState extends State<MainPage> {
                 Expanded(
                   flex: 2,
                   child: ElevatedButton.icon(
-                    onPressed: () => _openNaverMap(lot),
+                    onPressed: () => _launchNavigation(lot),
                     icon: const Icon(Icons.directions, size: 18),
                     label: '길찾기'.text.size(14).bold.make(),
                     style: ElevatedButton.styleFrom(
@@ -491,27 +492,23 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  Future<void> _openNaverMap(ParkingLot lot) async {
-    // 네이버맵 딥링크 URL 생성
-    final url = Uri.parse(
-      'nmap://place?lat=${lot.latitude}&lng=${lot.longitude}&name=${Uri.encodeComponent(lot.name)}&appname=daeja',
-    );
-
-    // 네이버맵 웹 URL (앱이 설치되지 않은 경우)
-    final webUrl = Uri.parse(
-      'https://map.naver.com/v5/search/${Uri.encodeComponent(lot.name)}',
-    );
+  Future<void> _launchNavigation(ParkingLot lot) async {
+    if (_currentPosition == null) {
+      _showErrorDialog('현재 위치를 가져올 수 없습니다');
+      return;
+    }
 
     try {
-      // 네이버맵 앱으로 열기 시도
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        // 앱이 없으면 웹으로 열기
-        await launchUrl(webUrl, mode: LaunchMode.externalApplication);
-      }
+      await LaunchMapHelper.launchNavigation(
+        context: context,
+        originLatitude: _currentPosition!.latitude,
+        originLongitude: _currentPosition!.longitude,
+        destinationLatitude: lot.latitude,
+        destinationLongitude: lot.longitude,
+        destinationTitle: lot.name,
+      );
     } catch (e) {
-      _showErrorDialog('네이버맵을 열 수 없습니다.');
+      _showErrorDialog('지도 앱을 실행할 수 없습니다');
     }
   }
 

@@ -321,9 +321,18 @@ class _HomePageState extends State<HomePage> {
     // Provider에서 주차장 데이터 가져오기
     await parkingProvider.fetchParkingLots();
 
+    // 에러가 있어도 정적 데이터를 사용하므로 계속 진행
     if (parkingProvider.error != null) {
-      _showErrorDialog(parkingProvider.error!);
-      return;
+      // 조용히 스낵바로 알림
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: '실시간 정보를 불러올 수 없어 저장된 정보를 표시합니다.'.text.make(),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
 
     // 현재 주차장 목록 저장
@@ -507,11 +516,19 @@ class _HomePageState extends State<HomePage> {
                           .size(14)
                           .make(),
                       height5,
-                      '${lot.availableSpaces}면'.text
+                      (lot.availableSpaces == -1
+                              ? '총 ${lot.totalSpaces}면'
+                              : '${lot.availableSpaces}면')
+                          .text
                           .color(
-                            lot.availableSpaces > 0
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.error,
+                            lot.availableSpaces == -1
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6)
+                                : lot.availableSpaces > 0
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.error,
                           )
                           .size(20)
                           .bold
@@ -790,8 +807,20 @@ class _HomePageState extends State<HomePage> {
                                       )
                                       .make(),
                                   width10,
-                                  '잔여: ${lot.availableSpaces}면'.text
-                                      .color(Theme.of(context).colorScheme.primary)
+                                  (lot.availableSpaces == -1
+                                          ? '총 ${lot.totalSpaces}면'
+                                          : '잔여: ${lot.availableSpaces}면')
+                                      .text
+                                      .color(
+                                        lot.availableSpaces == -1
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withOpacity(0.6)
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                      )
                                       .bold
                                       .make(),
                                 ],
@@ -828,9 +857,7 @@ class _HomePageState extends State<HomePage> {
 📍 주소: ${lot.address}
 
 🚗 주차 현황:
-  • 전체 ${lot.totalSpaces}면
-  • 잔여 ${lot.availableSpaces}면
-  ${lot.availableSpaces == 0 ? '⚠️ 주차 불가' : '✅ 주차 가능'}
+  • 전체 ${lot.totalSpaces}면${lot.availableSpaces == -1 ? '\n  ⚠️ 실시간 정보 없음' : '\n  • 잔여 ${lot.availableSpaces}면\n  ${lot.availableSpaces == 0 ? '⚠️ 주차 불가' : '✅ 주차 가능'}'}
 
 📱 대자 앱으로 실시간 주차 정보를 확인하세요!
 
@@ -883,6 +910,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // 제주도 외 지역 안내 다이얼로그
+  void _showOutsideJejuDialog(NaverMapController controller) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: '제주도가 아닌 지역'.text.bold.make(),
+        content: '현재 위치는 제주도가 아닙니다.\n이 앱은 제주도 방문 시 유용합니다.\n\n제주시청 위치로 이동하시겠습니까?'
+            .text
+            .make(),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: '현재 위치 유지'.text.make(),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _moveToJejuCityHall(controller);
+            },
+            child: '제주도 보기'.text.make(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 제주시청으로 카메라 이동
+  Future<void> _moveToJejuCityHall(NaverMapController controller) async {
+    try {
+      await controller.updateCamera(
+        NCameraUpdate.withParams(
+          target: NLatLng(
+            LocationHelper.jejuCityHallLat,
+            LocationHelper.jejuCityHallLng,
+          ),
+          zoom: 14,
+        ),
+      );
+    } catch (e) {
+      print('제주시청으로 이동 중 오류: $e');
+    }
+  }
+
   // 위치 추적 활성화
   Future<void> _enableLocationTracking(NaverMapController controller) async {
     try {
@@ -893,6 +963,11 @@ class _HomePageState extends State<HomePage> {
         locationOverlay.setPosition(
           NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
         );
+
+        // 제주도 외 지역인 경우 안내 다이얼로그 표시
+        if (!LocationHelper.isInJejuIsland(_currentPosition!)) {
+          _showOutsideJejuDialog(controller);
+        }
       }
     } catch (e) {
       print('위치 추적 활성화 실패: $e');

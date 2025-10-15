@@ -78,4 +78,22 @@ class LocationHelper {
   static Future<Position?> getLastKnownPosition() async {
     return await Geolocator.getLastKnownPosition();
   }
+
+  /// 제주도 위치 여부 확인
+  /// 제주도 대략 위도: 33.2°~33.6°, 경도: 126.1°~126.9°
+  static bool isInJejuIsland(Position position) {
+    const double minLat = 33.2;
+    const double maxLat = 33.6;
+    const double minLng = 126.1;
+    const double maxLng = 126.9;
+
+    return position.latitude >= minLat &&
+        position.latitude <= maxLat &&
+        position.longitude >= minLng &&
+        position.longitude <= maxLng;
+  }
+
+  /// 제주시청 기본 좌표
+  static const double jejuCityHallLat = 33.4996;
+  static const double jejuCityHallLng = 126.5312;
 }

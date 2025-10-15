@@ -34,10 +34,9 @@ class ParkingProvider with ChangeNotifier {
       _error = null;
     } catch (e) {
       _error = e.toString().replaceFirst('Exception: ', '');
-      // 캐시된 데이터가 있으면 유지, 없으면 빈 리스트
-      if (_parkingLots.isEmpty) {
-        _parkingLots = [];
-      }
+      // API 실패 시 정적 데이터 사용
+      _parkingLots = ParkingService.getStaticParkingLots();
+      _lastFetchTime = null; // 정적 데이터는 캐시 시간 없음
     } finally {
       _isLoading = false;
       notifyListeners();

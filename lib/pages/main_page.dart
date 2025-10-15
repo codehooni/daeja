@@ -81,9 +81,18 @@ class _MainPageState extends State<MainPage> {
       // 주차장 데이터 가져오기
       await parkingProvider.fetchParkingLots();
 
+      // 에러가 있어도 정적 데이터를 사용하므로 계속 진행
       if (parkingProvider.error != null) {
-        _showErrorDialog(parkingProvider.error!);
-        return;
+        // 조용히 스낵바로 알림
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: '실시간 정보를 불러올 수 없어 저장된 정보를 표시합니다.'.text.make(),
+              duration: const Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
 
       // 거리순으로 정렬된 주차장 목록 가져오기
@@ -227,9 +236,19 @@ class _MainPageState extends State<MainPage> {
                                       )
                                       .make(),
                                   width10,
-                                  '잔여: ${lot.availableSpaces}면'.text
+                                  (lot.availableSpaces == -1
+                                          ? '총 ${lot.totalSpaces}면'
+                                          : '잔여: ${lot.availableSpaces}면')
+                                      .text
                                       .color(
-                                        Theme.of(context).colorScheme.primary,
+                                        lot.availableSpaces == -1
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withOpacity(0.6)
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .primary,
                                       )
                                       .bold
                                       .make(),
@@ -377,11 +396,19 @@ class _MainPageState extends State<MainPage> {
                           .size(14)
                           .make(),
                       height5,
-                      '${lot.availableSpaces}면'.text
+                      (lot.availableSpaces == -1
+                              ? '총 ${lot.totalSpaces}면'
+                              : '${lot.availableSpaces}면')
+                          .text
                           .color(
-                            lot.availableSpaces > 0
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.error,
+                            lot.availableSpaces == -1
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6)
+                                : lot.availableSpaces > 0
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.error,
                           )
                           .size(20)
                           .bold
@@ -476,9 +503,7 @@ class _MainPageState extends State<MainPage> {
 📍 주소: ${lot.address}
 
 🚗 주차 현황:
-  • 전체 ${lot.totalSpaces}면
-  • 잔여 ${lot.availableSpaces}면
-  ${lot.availableSpaces == 0 ? '⚠️ 주차 불가' : '✅ 주차 가능'}
+  • 전체 ${lot.totalSpaces}면${lot.availableSpaces == -1 ? '\n  ⚠️ 실시간 정보 없음' : '\n  • 잔여 ${lot.availableSpaces}면\n  ${lot.availableSpaces == 0 ? '⚠️ 주차 불가' : '✅ 주차 가능'}'}
 
 📱 대자 앱으로 실시간 주차 정보를 확인하세요!
 

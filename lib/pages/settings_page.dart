@@ -258,7 +258,7 @@ class _SettingsPageState extends State<SettingsPage> {
               text: '버전 정보',
               item: Row(
                 children: [
-                  'v1.0.1'.text
+                  'v1.0.2'.text
                       .color(
                         Theme.of(
                           context,

@@ -151,22 +151,6 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  // Flaticon 페이지 열기
-  Future<void> _openFlaticon() async {
-    final flaticonUri = Uri.parse(
-      'https://www.flaticon.com/free-icons/bicycle-parking',
-    );
-
-    try {
-      if (await canLaunchUrl(flaticonUri)) {
-        await launchUrl(flaticonUri, mode: LaunchMode.externalApplication);
-      } else {
-        _showErrorSnackBar('브라우저를 열 수 없습니다.');
-      }
-    } catch (e) {
-      _showErrorSnackBar('Flaticon 페이지를 열 수 없습니다.');
-    }
-  }
 
   // 에러 스낵바 표시
   void _showErrorSnackBar(String message) {
@@ -274,32 +258,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     ).colorScheme.onPrimaryContainer.withOpacity(0.7),
                   ),
                 ],
-              ),
-            ),
-
-            // 오픈소스 라이선스
-            height10,
-            '오픈소스 라이선스'.text.size(18.0).bold.make().p(l: 16.0),
-            MySettingContainer(
-              text: '아이콘 라이선스',
-              item: Tap(
-                onTap: () => _openFlaticon(),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: Image.asset(
-                        'assets/icons/flaticon.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    width5,
-                    'Flaticon'.text
-                        .color(Theme.of(context).colorScheme.onPrimaryContainer)
-                        .make(),
-                  ],
-                ),
               ),
             ),
           ],

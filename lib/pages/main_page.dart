@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../widgets/my_bottom_navigation_item.dart';
 import '../providers/parking_provider.dart';
@@ -243,12 +244,12 @@ class _MainPageState extends State<MainPage> {
                                       .color(
                                         lot.availableSpaces == -1
                                             ? Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withOpacity(0.6)
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .primary,
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withOpacity(0.6)
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                       )
                                       .bold
                                       .make(),
@@ -402,13 +403,12 @@ class _MainPageState extends State<MainPage> {
                           .text
                           .color(
                             lot.availableSpaces == -1
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withOpacity(0.6)
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6)
                                 : lot.availableSpaces > 0
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context).colorScheme.error,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.error,
                           )
                           .size(20)
                           .bold
@@ -593,9 +593,9 @@ class _MainPageState extends State<MainPage> {
         shape: const CircleBorder(),
         backgroundColor: Theme.of(context).colorScheme.primary,
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(8.0),
           child: Image.asset(
-            'assets/icons/parked-car.png',
+            'assets/icons/parking-icon.png',
             color: Theme.of(context).colorScheme.onPrimary,
             fit: BoxFit.contain,
           ),

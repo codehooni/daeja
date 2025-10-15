@@ -567,11 +567,14 @@ class _MainPageState extends State<MainPage> {
         onPressed: () => _showNearbyParkingLots(),
         shape: const CircleBorder(),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        child: 'P'.text
-            .size(32)
-            .bold
-            .color(Theme.of(context).colorScheme.onPrimary)
-            .make(),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Image.asset(
+            'assets/icons/parked-car.png',
+            color: Theme.of(context).colorScheme.onPrimary,
+            fit: BoxFit.contain,
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );

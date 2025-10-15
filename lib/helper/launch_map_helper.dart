@@ -1,3 +1,4 @@
+import 'package:daeja/dialogs/dialogs.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,11 +24,7 @@ class LaunchMapHelper {
 
     if (filteredMaps.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('네이버맵, 티맵, 카카오맵 중 하나를 설치해주세요'),
-          ),
-        );
+        Dialogs.showErrorDialog(context, '네이버맵, 티맵, 카카오맵 중 하나를 설치해주세요');
       }
       return;
     }
@@ -52,7 +49,12 @@ class LaunchMapHelper {
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return Container(
-          padding: const EdgeInsets.only(top: 4, left: 16, right: 16, bottom: 48),
+          padding: const EdgeInsets.only(
+            top: 4,
+            left: 16,
+            right: 16,
+            bottom: 48,
+          ),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primaryContainer,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -113,8 +115,10 @@ class LaunchMapHelper {
                       onTap: () async {
                         Navigator.of(context).pop();
                         await map.showDirections(
-                          destination:
-                              Coords(destinationLatitude, destinationLongitude),
+                          destination: Coords(
+                            destinationLatitude,
+                            destinationLongitude,
+                          ),
                           destinationTitle: destinationTitle,
                           origin: Coords(originLatitude, originLongitude),
                           directionsMode: DirectionsMode.driving,
@@ -125,11 +129,7 @@ class LaunchMapHelper {
                         child: Row(
                           children: [
                             if (iconPath.isNotEmpty)
-                              SvgPicture.asset(
-                                iconPath,
-                                width: 32,
-                                height: 32,
-                              )
+                              SvgPicture.asset(iconPath, width: 32, height: 32)
                             else
                               Icon(
                                 Icons.map,
@@ -142,17 +142,17 @@ class LaunchMapHelper {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                             ),
                             Icon(
                               Icons.chevron_right,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.5),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.5),
                             ),
                           ],
                         ),

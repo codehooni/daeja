@@ -100,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _copyEmailToClipboard(BuildContext context) {
     Clipboard.setData(const ClipboardData(text: _developerEmail));
     Navigator.pop(context);
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: '이메일 주소가 복사되었습니다! 📋'.text.color(Colors.white).make(),
@@ -121,7 +121,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final emailUri = Uri(
       scheme: 'mailto',
       path: _developerEmail,
-      query: 'subject=${Uri.encodeComponent('대제주 앱 문의')}&body=${Uri.encodeComponent('안녕하세요!\n\n문의 내용:\n\n\n---\n앱 버전: v1.0.0\n기기 정보: ${Theme.of(context).platform}')}',
+      query:
+          'subject=${Uri.encodeComponent('대제주 앱 문의')}&body=${Uri.encodeComponent('안녕하세요!\n\n문의 내용:\n\n\n---\n앱 버전: v1.0.0\n기기 정보: ${Theme.of(context).platform}')}',
     );
 
     try {
@@ -138,7 +139,7 @@ class _SettingsPageState extends State<SettingsPage> {
   // GitHub 이슈 페이지 열기
   Future<void> _openGitHub() async {
     final githubUri = Uri.parse('$_githubRepo/issues');
-    
+
     try {
       if (await canLaunchUrl(githubUri)) {
         await launchUrl(githubUri, mode: LaunchMode.externalApplication);
@@ -147,6 +148,23 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       _showErrorSnackBar('GitHub 페이지를 열 수 없습니다.');
+    }
+  }
+
+  // Flaticon 페이지 열기
+  Future<void> _openFlaticon() async {
+    final flaticonUri = Uri.parse(
+      'https://www.flaticon.com/free-icons/bicycle-parking',
+    );
+
+    try {
+      if (await canLaunchUrl(flaticonUri)) {
+        await launchUrl(flaticonUri, mode: LaunchMode.externalApplication);
+      } else {
+        _showErrorSnackBar('브라우저를 열 수 없습니다.');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Flaticon 페이지를 열 수 없습니다.');
     }
   }
 
@@ -190,7 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
             // 문의 및 지원
             '문의 및 지원'.text.size(18.0).bold.make().p(l: 16.0),
-            
+
             // 이메일 문의
             MySettingContainer(
               text: '이메일로 문의하기',
@@ -211,7 +229,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            
+
             // 깃허브 이슈
             MySettingContainer(
               text: '버그 신고 / 기능 제안',
@@ -232,7 +250,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            
+
             // 앱 정보
             height10,
             '앱 정보'.text.size(18.0).bold.make().p(l: 16.0),
@@ -240,16 +258,48 @@ class _SettingsPageState extends State<SettingsPage> {
               text: '버전 정보',
               item: Row(
                 children: [
-                  'v1.0.0'.text
-                      .color(Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7))
+                  'v1.0.1'.text
+                      .color(
+                        Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer.withOpacity(0.7),
+                      )
                       .make(),
                   width5,
                   Icon(
                     Icons.info_outline,
                     size: 16,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onPrimaryContainer.withOpacity(0.7),
                   ),
                 ],
+              ),
+            ),
+
+            // 오픈소스 라이선스
+            height10,
+            '오픈소스 라이선스'.text.size(18.0).bold.make().p(l: 16.0),
+            MySettingContainer(
+              text: '아이콘 라이선스',
+              item: Tap(
+                onTap: () => _openFlaticon(),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: Image.asset(
+                        'assets/icons/flaticon.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    width5,
+                    'Flaticon'.text
+                        .color(Theme.of(context).colorScheme.onPrimaryContainer)
+                        .make(),
+                  ],
+                ),
               ),
             ),
           ],

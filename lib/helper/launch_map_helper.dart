@@ -15,16 +15,18 @@ class LaunchMapHelper {
   }) async {
     final availableMaps = await MapLauncher.installedMaps;
 
-    // 네이버, 티맵, 카카오만 필터링
+    // 네이버, 티맵, 카카오, 애플지도, 구글지도 필터링
     final filteredMaps = availableMaps.where((map) {
       return map.mapType == MapType.naver ||
           map.mapType == MapType.tmap ||
-          map.mapType == MapType.kakao;
+          map.mapType == MapType.kakao ||
+          map.mapType == MapType.apple ||
+          map.mapType == MapType.google;
     }).toList();
 
     if (filteredMaps.isEmpty) {
       if (context.mounted) {
-        Dialogs.showErrorDialog(context, '네이버맵, 티맵, 카카오맵 중 하나를 설치해주세요');
+        Dialogs.showErrorDialog(context, '네이버맵, 티맵, 카카오맵, 애플지도, 구글지도 중 하나를 설치해주세요');
       }
       return;
     }
@@ -100,6 +102,10 @@ class LaunchMapHelper {
                   iconPath = 'assets/images/kakao.svg';
                 } else if (map.mapType == MapType.tmap) {
                   iconPath = 'assets/images/tmap.svg';
+                } else if (map.mapType == MapType.apple) {
+                  iconPath = 'assets/images/apple.svg';
+                } else if (map.mapType == MapType.google) {
+                  iconPath = 'assets/images/google.svg';
                 }
 
                 return Container(

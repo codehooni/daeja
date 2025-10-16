@@ -86,6 +86,8 @@
         <string>nmap</string>
         <string>kakaomap</string>
         <string>tmap</string>
+        <string>iosamap</string>
+        <string>comgooglemaps</string>
     </array>
 
 </dict>

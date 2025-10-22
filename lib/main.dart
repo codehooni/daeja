@@ -1,51 +1,26 @@
-import 'package:daeja/pages/main_page.dart';
-import 'package:daeja/providers/parking_provider.dart';
-import 'package:daeja/theme/theme_provider.dart';
+import 'package:daeja/features/parking_lot/cubit/parking_lot_cubit.dart';
+import 'package:daeja/features/parking_lot/data/repository/parking_lot_repository.dart';
+import 'package:daeja/features/parking_lot/presentation/screen/main_screen.dart';
+import 'package:daeja/features/user_location/provider/user_location_provider.dart';
+import 'package:daeja/my_observer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
-  try {
-    await dotenv.load(fileName: '.env');
-  } catch (e) {
-    print("환경 변수 로드 실패: $e");
-  }
+  await dotenv.load(fileName: '.env');
 
-  try {
-    // Naver Map Init
-    await FlutterNaverMap().init(
-      clientId: dotenv.env['NAVER_MAP_CLIENT_ID'] ?? '',
-      onAuthFailed: (ex) {
-        switch (ex) {
-          case NQuotaExceededException(:final message):
-            print("사용량 초과 (message: $message)");
-            break;
-          case NUnauthorizedClientException() ||
-              NClientUnspecifiedException() ||
-              NAnotherAuthFailedException():
-            print("인증 실패: $ex");
-            break;
-        }
-      },
-    );
-  } catch (e) {
-    print("Naver Map 초기화 실패: $e");
-  }
+  Bloc.observer = MyObserver();
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => ThemeProvider()),
-        ChangeNotifierProvider(create: (context) => ParkingProvider()),
-      ],
-      child: const MyApp(),
-    ),
+  await FlutterNaverMap().init(
+    clientId: dotenv.env['NAVER_MAP_CLIENT_ID'] ?? '',
   );
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -53,10 +28,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: Provider.of<ThemeProvider>(context).themeData,
-      home: MainPage(),
+    final parkingLotRepo = ParkingLotRepository();
+
+    return MultiProvider(
+      providers: [
+        // UserLocation Provider
+        ChangeNotifierProvider(create: (context) => UserLocationProvider()),
+
+        // Repository Provider
+        RepositoryProvider(
+          create: (context) => RepositoryProvider.value(value: parkingLotRepo),
+        ),
+
+        // Bloc Provider
+        BlocProvider(create: (context) => ParkingLotCubit(parkingLotRepo)),
+      ],
+      child: MaterialApp(debugShowCheckedModeBanner: false, home: MainScreen()),
     );
   }
 }

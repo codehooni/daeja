@@ -151,7 +151,6 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-
   // 에러 스낵바 표시
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -242,7 +241,7 @@ class _SettingsPageState extends State<SettingsPage> {
               text: '버전 정보',
               item: Row(
                 children: [
-                  'v1.0.2'.text
+                  'v1.0.4'.text
                       .color(
                         Theme.of(
                           context,

@@ -46,6 +46,9 @@ dependencies:
   map_launcher: ^4.4.2
   flutter_svg: ^2.0.16
 
+  # for using Cubit
+  flutter_bloc: ^9.1.1
+
 flutter_launcher_icons:
   android: true
   ios: true

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:daeja/data/static_parking_lots.dart';
+import 'package:daeja/features/parking_lot/data/static_parking_lots.dart';
 import 'package:daeja/models/parking_lot.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -19,12 +19,8 @@ class ParkingService {
     try {
       // 병렬 API 호출 (성능 개선)
       final results = await Future.wait([
-        http.get(Uri.parse(infoUrl)).timeout(
-          const Duration(seconds: 10),
-        ),
-        http.get(Uri.parse(stateUrl)).timeout(
-          const Duration(seconds: 10),
-        ),
+        http.get(Uri.parse(infoUrl)).timeout(const Duration(seconds: 10)),
+        http.get(Uri.parse(stateUrl)).timeout(const Duration(seconds: 10)),
       ]);
 
       final infoRes = results[0];
@@ -51,7 +47,6 @@ class ParkingService {
         final state = stateMap[i['id']];
         return ParkingLot.fromJson(i, state);
       }).toList();
-
     } on TimeoutException catch (e) {
       // 타임아웃 (해외 접속 가능성)
       print("TimeoutException: $e");
@@ -77,9 +72,7 @@ class ParkingService {
       print("Info URL: $infoUrl");
       print("State URL: $stateUrl");
       print("Falling back to static parking lot data");
-      throw Exception(
-        "실시간 주차장 정보를 불러올 수 없습니다.\n저장된 주차장 위치만 표시합니다.",
-      );
+      throw Exception("실시간 주차장 정보를 불러올 수 없습니다.\n저장된 주차장 위치만 표시합니다.");
     }
   }
 

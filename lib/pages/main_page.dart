@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../widgets/my_bottom_navigation_item.dart';
 import '../providers/parking_provider.dart';

@@ -522,13 +522,12 @@ class _HomePageState extends State<HomePage> {
                           .text
                           .color(
                             lot.availableSpaces == -1
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withOpacity(0.6)
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6)
                                 : lot.availableSpaces > 0
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context).colorScheme.error,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.error,
                           )
                           .size(20)
                           .bold
@@ -794,16 +793,17 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               lot.name.text.bold
                                   .size(18.0)
-                                  .color(Theme.of(context).colorScheme.onSurface)
+                                  .color(
+                                    Theme.of(context).colorScheme.onSurface,
+                                  )
                                   .make(),
                               height5,
                               Row(
                                 children: [
                                   '전체: ${lot.totalSpaces}면'.text
                                       .color(
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface.withOpacity(0.7),
+                                        Theme.of(context).colorScheme.onSurface
+                                            .withOpacity(0.7),
                                       )
                                       .make(),
                                   width10,
@@ -814,12 +814,12 @@ class _HomePageState extends State<HomePage> {
                                       .color(
                                         lot.availableSpaces == -1
                                             ? Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withOpacity(0.6)
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .primary,
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withOpacity(0.6)
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                       )
                                       .bold
                                       .make(),
@@ -1003,7 +1003,10 @@ class _HomePageState extends State<HomePage> {
       if (mapController != null) {
         await mapController!.updateCamera(
           NCameraUpdate.withParams(
-            target: NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+            target: NLatLng(
+              _currentPosition!.latitude,
+              _currentPosition!.longitude,
+            ),
             zoom: 14,
           ),
         );

@@ -1,4 +1,3 @@
-import 'package:daeja/ceyhun/constant_widget.dart';
 import 'package:flutter/material.dart';
 
 class SheetHandleBar extends StatelessWidget {
@@ -8,7 +7,7 @@ class SheetHandleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        spacer,
+        Spacer(),
         Container(
           width: 36.0,
           height: 5.0,
@@ -19,7 +18,7 @@ class SheetHandleBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(8.0),
           ),
         ),
-        spacer,
+        Spacer(),
       ],
     );
   }

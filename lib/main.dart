@@ -9,6 +9,8 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
+import 'presentation/theme/theme_provider.dart';
+
 late Size mq;
 
 void main() async {
@@ -45,8 +47,19 @@ class MyApp extends StatelessWidget {
 
         // Bloc Provider
         BlocProvider(create: (context) => ParkingLotCubit(parkingLotRepo)),
+
+        // Theme Provider
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
-      child: MaterialApp(debugShowCheckedModeBanner: false, home: MainScreen()),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: themeProvider.themeData,
+            home: MainScreen(),
+          );
+        },
+      ),
     );
   }
 }

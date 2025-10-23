@@ -1,4 +1,3 @@
-import 'package:daeja/ceyhun/my_text_extension.dart';
 import 'package:flutter/material.dart';
 
 class MySettingContainer extends StatelessWidget {
@@ -19,7 +18,10 @@ class MySettingContainer extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [text.text.size(16.0).make(), item],
+        children: [
+          Text(text, style: TextStyle(fontSize: 16.0)),
+          item,
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:daeja/constants/constants.dart';
 import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
+import 'package:daeja/presentation/widget/sheet/navigation_selection_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -185,7 +186,7 @@ class ParkingDetailSheet extends StatelessWidget {
               flex: 2,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // todo: 길찾기 로직
+                  NavigationSelectionSheet.show(context, parking);
                 },
                 icon: Icon(Icons.directions, size: 18.0),
                 label: Text(

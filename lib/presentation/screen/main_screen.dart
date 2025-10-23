@@ -29,6 +29,12 @@ class _MainScreenState extends State<MainScreen> {
 
   List<NMarker> _markers = [];
 
+  /*
+
+  Bottom App Bar
+
+  */
+
   // Bottom App Bar Screens
   List<Widget> get _screens => [
     HomeScreen(
@@ -40,6 +46,19 @@ class _MainScreenState extends State<MainScreen> {
 
     const SettingsScreen(),
   ];
+
+  // 페이지 전환 컨트롤
+  void _onItemTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  /*
+
+  Stack Buttons
+
+  */
 
   // 새로고침
   Future<void> _onRefresh() async {
@@ -61,17 +80,54 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // 페이지 전환 컨트롤
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  /*
+
+  Parking Lots Near my
+
+  */
 
   // 주변 주차장 버튼 클릭
   void _onFabPressed() {
-    ParkingListSheet.show(context);
+    ParkingListSheet.show(context, onParkingTap: _onParkingSelected);
   }
+
+  Future<void> _onParkingSelected(ParkingLot parking) async {
+    if (mapController == null) return;
+    if (parking.xCrdn == null || parking.yCrdn == null) return;
+
+    // 홈 화면 이동
+    if (_currentIndex != 0) {
+      setState(() {
+        _currentIndex = 0;
+      });
+
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+
+    // 카메라 이동
+    await mapController!.updateCamera(
+      NCameraUpdate.fromCameraPosition(
+        NCameraPosition(
+          target: NLatLng(parking.yCrdn!, parking.xCrdn!),
+          zoom: 16.0,
+        ),
+      ),
+    );
+
+    // 카메라 이동 대기
+    await Future.delayed(Duration(milliseconds: 500));
+
+    // 상세 정보 Sheet
+    if (mounted) {
+      ParkingDetailSheet.show(context, parking);
+    }
+  }
+
+  /*
+
+  Load Naver Map
+
+  */
 
   @override
   void initState() {

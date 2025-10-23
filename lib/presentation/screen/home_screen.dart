@@ -2,7 +2,6 @@ import 'package:daeja/features/user_location/provider/user_location_provider.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:geolocator/geolocator.dart';
 
 class HomeScreen extends StatefulWidget {
   final NaverMapController? mapController;

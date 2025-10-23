@@ -1,6 +1,6 @@
 import 'package:daeja/features/parking_lot/cubit/parking_lot_cubit.dart';
 import 'package:daeja/features/parking_lot/data/repository/parking_lot_repository.dart';
-import 'package:daeja/features/parking_lot/presentation/screen/main_screen.dart';
+import 'package:daeja/presentation/screen/main_screen.dart';
 import 'package:daeja/features/user_location/provider/user_location_provider.dart';
 import 'package:daeja/my_observer.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+
+late Size mq;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +30,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    mq = MediaQuery.of(context).size;
     final parkingLotRepo = ParkingLotRepository();
 
     return MultiProvider(

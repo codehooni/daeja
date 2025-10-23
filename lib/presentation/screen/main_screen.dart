@@ -1,8 +1,9 @@
-import 'package:daeja/features/parking_lot/presentation/widget/my_bottom_navigation_item.dart';
-import 'package:daeja/features/parking_lot/presentation/screen/home_screen.dart';
-import 'package:daeja/features/parking_lot/presentation/screen/settings_screen.dart';
-import 'package:daeja/features/parking_lot/presentation/widget/my_floating_action_button.dart';
+import 'package:daeja/presentation/widget/my_bottom_navigation_item.dart';
+import 'package:daeja/presentation/screen/home_screen.dart';
+import 'package:daeja/presentation/screen/settings_screen.dart';
+import 'package:daeja/presentation/widget/my_floating_action_button.dart';
 import 'package:daeja/features/user_location/provider/user_location_provider.dart';
+import 'package:daeja/presentation/widget/sheet/parking_list_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -16,7 +17,6 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  bool _hasInitialized = false;
 
   NaverMapController? mapController;
 
@@ -33,6 +33,7 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  // 네이버 맵 로드시 실행
   void _onMapReady(NaverMapController controller) {
     setState(() {
       mapController = controller;
@@ -40,6 +41,10 @@ class _MainScreenState extends State<MainScreen> {
 
     // 현재 위치로 초기 이동
     final userLocation = context.read<UserLocationProvider>();
+
+    // 내 위치 표시 활성화
+    controller.setLocationTrackingMode(NLocationTrackingMode.follow);
+
     controller.updateCamera(
       NCameraUpdate.fromCameraPosition(
         NCameraPosition(
@@ -48,6 +53,11 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+
+  // 주변 주차장 버튼 클릿
+  void _onFabPressed() {
+    ParkingListSheet.show(context);
   }
 
   @override
@@ -81,7 +91,7 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
       ),
-      floatingActionButton: MyFloatingActionButton(onPressed: () {}),
+      floatingActionButton: MyFloatingActionButton(onPressed: _onFabPressed),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }

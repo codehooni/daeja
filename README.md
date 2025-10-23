@@ -1,4 +1,4 @@
-<img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-10-23 at 23 59 03" src="https://github.com/user-attachments/assets/c26256ce-801f-4a78-a453-5db4434dcb27" /># 대자 (Daeja) 🅿️
+# 대자 (Daeja) 🅿️
 
 > 제주도 실시간 주차장 정보 제공 모바일 앱
 

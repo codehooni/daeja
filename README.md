@@ -1,4 +1,4 @@
-# 대자 (Daeja) 🅿️
+<img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-10-23 at 23 59 03" src="https://github.com/user-attachments/assets/c26256ce-801f-4a78-a453-5db4434dcb27" /># 대자 (Daeja) 🅿️
 
 > 제주도 실시간 주차장 정보 제공 모바일 앱
 
@@ -34,6 +34,12 @@
 - 최적 경로 안내 및 실시간 내비게이션 지원
 - 앱 내 지도에서 즉시 길찾기 가능
 
+### 📤 **주차장 정보 공유**
+- 주차장 상세 정보를 텍스트로 공유
+- Google Maps 링크 포함
+- 요금 및 운영 시간 정보 포함
+
+
 <br>
 
 ## 🛠 기술 스택
@@ -43,7 +49,7 @@
 |------|------|------|
 | Framework | Flutter | 3.0+ |
 | Language | Dart | 2.17+ |
-| 상태관리 | Provider / GetX | - |
+| 상태관리 | Provider / BLoC(Cubit) | - |
 | 로컬 저장소 | SharedPreferences | - |
 
 ### 🌐 **External APIs & Services**
@@ -57,12 +63,16 @@
 ### 📦 **주요 패키지**
 ```yaml
 dependencies:
-  flutter_naver_map: ^1.0.0+  # 네이버 지도
-  http: ^1.1.0+               # HTTP 통신
-  geolocator: ^9.0.0+         # GPS 위치 서비스
-  permission_handler: ^11.0.0+ # 권한 관리
-  url_launcher: ^6.1.0+       # 외부 앱 실행
-  shared_preferences: ^2.1.0+ # 로컬 저장소
+  flutter_naver_map: ^1.4.1+       # 네이버 지도
+  http: ^1.2.2                     # HTTP 통신
+  geolocator: ^14.0.2              # GPS 위치 서비스
+  url_launcher: ^6.3.1             # 외부 앱 실행
+  provider: ^6.1.5+                # 상태 관리
+  flutter_bloc: ^9.1.1             # BLoC/Cubit 상태 관리
+  map_launcher: ^4.4.2             # 다중 지도 앱 지원
+  flutter_svg: ^2.0.16             # SVG 렌더링
+  share_plus: ^12.0.0              # 공유 기능
+  flutter_dotenv: ^6.0.0           # 환경 변수 관리
 ```
 
 <br>
@@ -70,9 +80,17 @@ dependencies:
 ## 📸 스크린샷
 
 ```
-[메인 화면]              [주차장 목록]           [지도 화면]
-내 위치 기반            거리별 정렬              네이버 지도 연동
-실시간 위치 업데이트     실시간 정보 표시         길찾기 기능
+  | 지도 화면 | 주차장 목록 | 상세 정보 | 길찾기 |
+  |:---:|:---:|:---:|:---:|
+  | <img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-10-23 at 23 59 03" src="https://github.com/user-attachments/assets/d287688f-a961-4780-ab7c-ab9392e28af2" />
+ | <img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-10-23 at 23 59 07" src="https://github.com/user-attachments/assets/8b8df077-49ea-4ed8-b795-29e488ca51cd" />
+ |
+  <img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-10-23 at 23 59 11" src="https://github.com/user-attachments/assets/b3dd58e6-d97d-4cd5-8bca-cc2a0594a761" />
+ | <img width="1290" height="2796" alt="Simulator Screenshot - iPhone 16 Plus - 2025-10-24 at 00 00 49" src="https://github.com/user-attachments/assets/d76c517a-2be5-4d87-ab3a-23652e5c6a76" />
+ |
+  | 실시간 위치 기반 지도 | 거리순 정렬 목록 | 주차 현황 및 요금 |
+   다중 지도 앱 지원 |
+
 ```
 
 > 💡 **스크린샷 추가 방법:**
@@ -117,14 +135,13 @@ flutter pub get
 **제주 교통정보센터 Open API 키 발급:**
 - [제주 교통정보센터](https://www.jejuits.go.kr/open_api/open_apiView.do) 접속
 - Open API 신청
-- `lib/config/api_keys.dart` 파일에 입력
+- 프로젝트 루트에 `.env` 파일 생성:
 
-```dart
-// lib/config/api_keys.dart
-class ApiKeys {
-  static const String naverMapClientId = 'YOUR_NAVER_MAP_CLIENT_ID';
-  static const String jejuItsApiKey = 'YOUR_JEJU_ITS_API_KEY';
-}
+```bash
+# .env
+NAVER_MAP_CLIENT_ID=your_naver_map_client_id
+JEJU_API_CODE=your_jeju_api_code
+DEVELOPER_EMAIL=your_email@example.com
 ```
 
 #### 4️⃣ **앱 실행**
@@ -136,38 +153,61 @@ flutter run
 
 ## 🏗️ 프로젝트 구조
 
-```
-lib/
-├── config/
-│   ├── api_keys.dart           # API 키 설정
-│   └── app_constants.dart      # 앱 상수 정의
-├── models/
-│   ├── parking_lot.dart        # 주차장 데이터 모델
-│   ├── parking_info.dart       # 주차 정보 모델
-│   └── user_location.dart      # 사용자 위치 모델
-├── services/
-│   ├── jeju_its_service.dart   # 제주 ITS API 연동
-│   ├── location_service.dart   # GPS 위치 서비스
-│   ├── map_service.dart        # 네이버 지도 서비스
-│   └── parking_service.dart    # 주차장 정보 조회
-├── providers/
-│   ├── location_provider.dart  # 위치 상태 관리
-│   ├── parking_provider.dart   # 주차장 상태 관리
-│   └── ui_provider.dart        # UI 상태 관리
-├── screens/
-│   ├── home_screen.dart        # 메인 화면 (지도)
-│   ├── parking_list_screen.dart # 주차장 목록 화면
-│   ├── parking_detail_screen.dart # 주차장 상세 화면
-│   └── settings_screen.dart    # 설정 화면
-├── widgets/
-│   ├── parking_card.dart       # 주차장 카드 위젯
-│   ├── location_button.dart    # 위치 업데이트 버튼
-│   └── custom_app_bar.dart     # 커스텀 앱바
-├── utils/
-│   ├── distance_calculator.dart # 거리 계산 유틸
-│   ├── permission_helper.dart  # 권한 관리 헬퍼
-│   └── logger.dart             # 로깅 유틸
-└── main.dart                   # 앱 진입점
+  lib/
+  ├── constants/
+  │   └── constants.dart              # 앱 전역 상수 (패딩, 테마 등)
+  ├── features/
+  │   ├── parking_lot/
+  │   │   ├── cubit/
+  │   │   │   ├── parking_lot_cubit.dart   # 주차장 상태 관리 (Cubit)
+  │   │   │   └── parking_lot_state.dart   # 주차장 상태 정의
+  │   │   ├── data/
+  │   │   │   ├── model/
+  │   │   │   │   └── parking_lot.dart     # 주차장 데이터 모델
+  │   │   │   ├── provider/
+  │   │   │   │   └── parking_lot_provider.dart # 제주 ITS API 데이터 제공
+  │   │   │   ├── repository/
+  │   │   │   │   └── parking_lot_repository.dart # 주차장 데이터 저장소
+  │   │   │   └── static_parking_lots.dart # 정적 주차장 데이터
+  │   └── user_location/
+  │       └── provider/
+  │           └── user_location_provider.dart # 사용자 위치 상태 관리
+  ├── presentation/
+  │   ├── dialogs/
+  │   │   └── dialogs.dart            # 공통 다이얼로그/스낵바
+  │   ├── helper/
+  │   │   └── parking_marker_helper.dart # 지도 마커 생성 헬퍼
+  │   ├── screen/
+  │   │   ├── home_screen.dart        # 홈 화면 (지도)
+  │   │   ├── main_screen.dart        # 메인 화면 (네비게이션)
+  │   │   └── settings_screen.dart    # 설정 화면
+  │   ├── theme/
+  │   │   ├── dark_mode.dart          # 다크 모드 테마
+  │   │   ├── light_mode.dart         # 라이트 모드 테마
+  │   │   └── theme_provider.dart     # 테마 상태 관리
+  │   └── widget/
+  │       ├── map/
+  │       │   ├── compass_button.dart      # 나침반 버튼
+  │       │   ├── map_control_buttons.dart # 지도 제어 버튼 모음
+  │       │   ├── my_location_button.dart  # 내 위치 버튼
+  │       │   ├── refresh_button.dart      # 새로고침 버튼
+  │       │   └── zoom_buttons.dart        # 줌 버튼
+  │       ├── sheet/
+  │       │   ├── navigation_selection_sheet.dart # 길찾기 앱 선택
+  │       │   ├── parking_detail_sheet.dart # 주차장 상세 정보
+  │       │   ├── parking_list_sheet.dart   # 주차장 목록
+  │       │   └── sheet_handle_bar.dart     # 바텀시트 핸들바
+  │       ├── my_bottom_navigation_item.dart # 하단 네비게이션 아이템
+  │       ├── my_floating_action_button.dart # 커스텀 FAB
+  │       └── my_setting_container.dart      # 설정 컨테이너
+  ├── utils/
+  │   ├── email_utils.dart            # 이메일 관련 유틸
+  │   └── share_parking_lot.dart      # 주차장 정보 공유
+  ├── models/
+  │   └── parking_lot.dart            # (레거시) 주차장 모델
+  ├── my_observer.dart                # Bloc 옵저버
+  └── main.dart                       # 앱 진입점
+
 ```
 
 <br>
@@ -180,39 +220,52 @@ lib/
 
 **주차장 기본 정보 조회**
 ```
-GET /infoParkingList?code={API_KEY}
+GET /infoParkingInfoList?code={API_KEY}
 
-Response:
+RESPONSE
+
 {
-  "parkingLot": [
-    {
-      "id": "주차장ID",
-      "name": "주차장명",
-      "location": "위치정보",
-      "totalCapacity": 150,
-      "latitude": 33.4996,
-      "longitude": 126.5312
-    }
-  ]
+   "result" : "success",
+   "info_cnt" : 2,
+   "Info": [{ :
+      "id" : "16488201",
+      "name" : "법원북측공영주차장",
+      "addr" : "법원북측",
+      "x_crdn" : 126.53534209,
+      "y_crdn" : 33.49472463,
+      "park_day" : "월화수목금토일",
+      "wkdy_strt" : "090000",
+      "wkdy_end" : "180000",
+      "lhdy_strt" : "090000",
+      "lhdy_end" : "180000",
+      "basic_time" : 30,
+      "basic_fare" : 1000,
+      "add_time" : 15,
+      "add_farc" : 500,
+      "whol_npls" : 91
+   }]
 }
 ```
 
 **주차장 실시간 현황**
 ```
-GET /infoParkingCnt?code={API_KEY}
+GET /infoParkingStateList?code={API_KEY}
 
-Response:
+RESPONSE
+
 {
-  "parkingInfo": [
-    {
-      "id": "주차장ID",
-      "name": "주차장명",
-      "totalCapacity": 150,
-      "availableSpaces": 45,
-      "occupancyRate": 70,
-      "lastUpdated": "2024-10-15 14:30:00"
-    }
-  ]
+   "result" : "success",
+   "info_cnt" : 2,
+   "Info": [{ :
+      "id" : "16488201",
+      "gnrl" : 10,
+      "lgvh" : 7,
+      "hvvh" : 0,
+      "emvh" : 0,
+      "hndc" : 2,
+      "wmon" : 0,
+      "etc" : 0
+   }]
 }
 ```
 
@@ -223,11 +276,13 @@ Response:
 ### 🤖 Android
 - **상태:** Google Play Store 비공개 테스트 진행 중
 - **테스터 모집:** 제주도 주민 및 방문객 대상
-- **정식 출시 예정일:** 2025년 10월 중순
+- **정식 출시 예정일:** 2025년 11월 중
+- **빌드 버전:** 1.1.0+15
 
 ### 🍎 iOS
-- **상태:** 준비 중
-- **예정일:** 2025년 11월 중
+- **상태:** 출시
+- **출시일:** 2025년 10월 17일
+- **빌드 버전:** 1.1.0+15
 
 <br>
 
@@ -238,6 +293,9 @@ Response:
 - **GPS 기반 서비스:** Geolocator를 이용한 현재 위치 추적 및 근처 주차장 자동 검색
 - **지도 API 통합:** 네이버 지도 API 및 다중 네비게이션 앱 연동
 - **권한 관리:** iOS/Android 플랫폼별 권한 요청 처리
+- **환경 변수 관리:** flutter_dotenv를 활용한 안전한 API 키 관리
+- **다중 지도 앱 지원:** 네이버, 카카오, 구글, 애플 지도 등 사용자 선택 가능
+- **정보 공유 기능:** share_plus를 활용한 주차장 정보 공유
 
 ### 🚀 **개발 프로세스**
 - **UI/UX:** 직관적인 주차 현황 표시를 위한 색상 코딩 시스템 개발
@@ -289,7 +347,7 @@ Response:
 **Made with ❤️ in Jeju, South Korea**
 
 ![Jeju](https://img.shields.io/badge/Location-Jeju%20Island-FF6B6B?style=flat)
-![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen?style=flat)
+![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen?style=flat)
 ![Status](https://img.shields.io/badge/Status-Beta%20Testing-yellow?style=flat)
 
 </div>

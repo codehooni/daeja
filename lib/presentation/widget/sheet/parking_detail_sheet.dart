@@ -2,6 +2,7 @@ import 'package:daeja/constants/constants.dart';
 import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
 import 'package:daeja/presentation/widget/sheet/navigation_selection_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
+import 'package:daeja/utils/share_parking_lot.dart';
 import 'package:flutter/material.dart';
 
 class ParkingDetailSheet extends StatelessWidget {
@@ -212,7 +213,7 @@ class ParkingDetailSheet extends StatelessWidget {
               flex: 1,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // todo: 공유 로직
+                  ShareParkingLot.shareParkingInfo(parking);
                 },
                 icon: Icon(Icons.share, size: 18.0),
                 label: Text(

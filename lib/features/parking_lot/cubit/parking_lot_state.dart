@@ -14,6 +14,7 @@ final class ParkingLotLoading extends ParkingLotState {}
 
 final class ParkingLotResult extends ParkingLotState {
   final List<ParkingLot> parkingLots;
+  final DateTime lastUpdated;
 
-  ParkingLotResult({required this.parkingLots});
+  ParkingLotResult(this.lastUpdated, {required this.parkingLots});
 }

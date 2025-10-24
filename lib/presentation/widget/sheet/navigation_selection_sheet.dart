@@ -24,6 +24,7 @@ class NavigationSelectionSheet extends StatelessWidget {
       double.parse(parking.xCrdn.toString()),
       double.parse(parking.yCrdn.toString()),
     );
+
     final title = parking.name.toString();
 
     if (!context.mounted) return;
@@ -89,7 +90,11 @@ class NavigationSelectionSheet extends StatelessWidget {
                   borderRadius: borderRadius,
                   onTap: () {
                     Navigator.pop(context);
-                    map.showMarker(coords: coords, title: title);
+                    map.showDirections(
+                      destination: coords,
+                      destinationTitle: title,
+                      directionsMode: DirectionsMode.driving,
+                    );
                   },
                   child: Padding(
                     padding: EdgeInsets.all(16.0),

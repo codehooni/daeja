@@ -1,20 +1,35 @@
 import 'package:daeja/constants/constants.dart';
+import 'package:daeja/features/parking_lot/cubit/parking_lot_cubit.dart';
+import 'package:daeja/features/parking_lot/cubit/parking_lot_state.dart';
 import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
+import 'package:daeja/presentation/widget/sheet/badge/time_badge.dart';
 import 'package:daeja/presentation/widget/sheet/navigation_selection_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:daeja/utils/share_parking_lot.dart';
+import 'package:daeja/utils/time_format.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ParkingDetailSheet extends StatelessWidget {
   final ParkingLot parking;
+  final DateTime? lastUpdated;
 
-  const ParkingDetailSheet({super.key, required this.parking});
+  const ParkingDetailSheet({
+    super.key,
+    required this.parking,
+    this.lastUpdated,
+  });
 
   static void show(BuildContext context, ParkingLot parking) {
+    final state = context.read<ParkingLotCubit>().state;
+    final lastUpdated = state is ParkingLotResult ? state.lastUpdated : null;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => ParkingDetailSheet(parking: parking),
+      builder: (context) =>
+          ParkingDetailSheet(parking: parking, lastUpdated: lastUpdated),
     );
   }
 
@@ -55,7 +70,7 @@ class ParkingDetailSheet extends StatelessWidget {
 
         SizedBox(width: 10.0),
 
-        // todo: 업데이트 시간
+        if (lastUpdated != null) TimeBadge(lastUpdated: lastUpdated!),
       ],
     );
   }

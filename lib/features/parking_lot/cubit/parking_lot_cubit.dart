@@ -17,7 +17,7 @@ class ParkingLotCubit extends Cubit<ParkingLotState> {
     emit(
       model == null
           ? ParkingLotInitial()
-          : ParkingLotResult(parkingLots: model),
+          : ParkingLotResult(DateTime.now(), parkingLots: model),
     );
   }
 }

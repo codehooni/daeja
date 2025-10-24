@@ -7,7 +7,6 @@ import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
 import 'package:daeja/features/user_location/provider/user_location_provider.dart';
 import 'package:daeja/main.dart';
 import 'package:daeja/presentation/widget/sheet/badge/time_badge.dart';
-import 'package:daeja/presentation/widget/sheet/parking_detail_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -213,7 +212,7 @@ class ParkingListSheet extends StatelessWidget {
 
                     // 잔여 주차면수
                     Text(
-                      '전체: ${parking.gnrl}면',
+                      '잔여: ${parking.totalRemaining}면',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,

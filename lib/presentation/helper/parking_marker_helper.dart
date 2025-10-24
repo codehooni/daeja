@@ -10,10 +10,7 @@ class ParkingMarkerHelper {
     ParkingLot parking,
     VoidCallback onTap,
   ) async {
-    final icon = await _createIconWithNumber(
-      context,
-      int.parse(parking.gnrl.toString()),
-    );
+    final icon = await _createIconWithNumber(context, parking.totalRemaining);
 
     final marker = NMarker(
       id: parking.id,

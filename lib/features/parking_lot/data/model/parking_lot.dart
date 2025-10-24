@@ -48,6 +48,15 @@ class ParkingLot {
     this.etc,
   });
 
+  int get totalRemaining =>
+      (gnrl ?? 0) +
+      (lgvh ?? 0) +
+      (hvvh ?? 0) +
+      (emvh ?? 0) +
+      (hndc ?? 0) +
+      (wmon ?? 0) +
+      (etc ?? 0);
+
   factory ParkingLot.fromJson(Map<String, dynamic> json) {
     return ParkingLot(
       id: json['id'] as String,

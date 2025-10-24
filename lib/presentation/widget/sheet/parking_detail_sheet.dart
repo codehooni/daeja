@@ -6,7 +6,6 @@ import 'package:daeja/presentation/widget/sheet/badge/time_badge.dart';
 import 'package:daeja/presentation/widget/sheet/navigation_selection_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:daeja/utils/share_parking_lot.dart';
-import 'package:daeja/utils/time_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -6,6 +6,7 @@ import 'package:daeja/features/parking_lot/cubit/parking_lot_state.dart';
 import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
 import 'package:daeja/features/user_location/provider/user_location_provider.dart';
 import 'package:daeja/main.dart';
+import 'package:daeja/presentation/widget/sheet/badge/time_badge.dart';
 import 'package:daeja/presentation/widget/sheet/parking_detail_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:flutter/material.dart';
@@ -13,14 +14,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ParkingListSheet extends StatelessWidget {
   final Function(ParkingLot)? onParkingTap;
+  final DateTime? lastUpdated;
 
-  const ParkingListSheet({super.key, this.onParkingTap});
+  const ParkingListSheet({super.key, this.onParkingTap, this.lastUpdated});
 
   static void show(BuildContext context, {Function(ParkingLot)? onParkingTap}) {
+    final state = context.read<ParkingLotCubit>().state;
+    final lastUpdated = state is ParkingLotResult ? state.lastUpdated : null;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => ParkingListSheet(onParkingTap: onParkingTap),
+      builder: (context) => ParkingListSheet(
+        onParkingTap: onParkingTap,
+        lastUpdated: lastUpdated,
+      ),
     );
   }
 
@@ -47,13 +55,29 @@ class ParkingListSheet extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: Text(
-        '내 주변 주차장',
-        style: TextStyle(
-          fontSize: 20.0,
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Spacer(),
+
+          Text(
+            '내 주변 주차장',
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ),
+
+          Expanded(
+            child: lastUpdated != null
+                ? Align(
+                    alignment: Alignment.centerRight,
+                    child: TimeBadge(lastUpdated: lastUpdated!),
+                  )
+                : SizedBox(),
+          ),
+        ],
       ),
     );
   }

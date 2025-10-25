@@ -2,8 +2,8 @@ class ParkingLot {
   final String id;
   final String? name;
   final String? addr;
-  final double? xCrdn;
-  final double? yCrdn;
+  final double? xCrdn; // longitude
+  final double? yCrdn; // latitude
   final String? parkDay; // 운영요일
   final String? wkdyStrt; // 평일 운영 시작시간
   final String? wkdyEnd; // 평일 운영 종료시간

@@ -568,17 +568,19 @@ class _DynamicBottomSheetState extends State<DynamicBottomSheet> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         // 주차장 이름
         Expanded(
           child: Text(
-            widget.parking.name.toString(),
+            '${widget.parking.name}',
             style: TextStyle(
               fontSize: 20.0,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ),
 

@@ -20,12 +20,16 @@ class MapControlButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const basicPadding = 16.0;
+    final bottomPadding = MediaQuery.of(context).padding.bottom + basicPadding;
+    final topPadding = MediaQuery.of(context).padding.top + basicPadding;
+
     return Stack(
       children: [
         // 오른쪽 위 - 새로고침, 나침반
         Positioned(
-          right: 16.0,
-          top: 60.0,
+          right: basicPadding,
+          top: topPadding,
           child: Column(
             children: [
               RefreshButton(onPressed: onRefresh),
@@ -37,15 +41,15 @@ class MapControlButtons extends StatelessWidget {
 
         // 왼쪽 아래 - 내 위치
         Positioned(
-          left: 16.0,
-          bottom: kBottomNavigationBarHeight + 70,
+          left: basicPadding,
+          bottom: bottomPadding,
           child: MyLocationButton(onPressed: onMyLocation),
         ),
 
         // 오른쪽 아래 - 줌
         Positioned(
-          right: 16.0,
-          bottom: kBottomNavigationBarHeight + 70,
+          right: basicPadding,
+          bottom: bottomPadding,
           child: ZoomButtons(mapController: mapController),
         ),
       ],

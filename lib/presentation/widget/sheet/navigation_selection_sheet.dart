@@ -21,8 +21,8 @@ class NavigationSelectionSheet extends StatelessWidget {
   static Future<void> show(BuildContext context, ParkingLot parking) async {
     final availableMaps = await MapLauncher.installedMaps;
     final coords = Coords(
-      double.parse(parking.xCrdn.toString()),
       double.parse(parking.yCrdn.toString()),
+      double.parse(parking.xCrdn.toString()),
     );
 
     final title = parking.name.toString();
@@ -90,6 +90,7 @@ class NavigationSelectionSheet extends StatelessWidget {
                   borderRadius: borderRadius,
                   onTap: () {
                     Navigator.pop(context);
+
                     map.showDirections(
                       destination: coords,
                       destinationTitle: title,

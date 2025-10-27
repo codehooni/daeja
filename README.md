@@ -86,7 +86,11 @@ dependencies:
 
 | 지도 화면 | 주차장 목록 | 상세 정보 | 길찾기 |
 |:---:|:---:|:---:|:---:|
-| <img width="250" alt="지도 화면" src="https://github.com/user-attachments/assets/d287688f-a961-4780-ab7c-ab9392e28af2" /> | <img width="250" alt="주차장 목록" src="https://github.com/user-attachments/assets/8b8df077-49ea-4ed8-b795-29e488ca51cd" /> | <img width="250" alt="상세 정보" src="https://github.com/user-attachments/assets/b3dd58e6-d97d-4cd5-8bca-cc2a0594a761" /> | <img width="250" alt="길찾기" src="https://github.com/user-attachments/assets/d76c517a-2be5-4d87-ab3a-23652e5c6a76" /> |
+| <img width="1242" height="2688" alt="1" src="https://github.com/user-attachments/assets/cff31169-f4dc-4fa3-a6e7-2e3208334cd3" />
+ | <img width="1242" height="2688" alt="2" src="https://github.com/user-attachments/assets/bd87b92a-8f95-4638-ae96-5a388e732cba" />
+ | <img width="1242" height="2688" alt="3" src="https://github.com/user-attachments/assets/85a41308-b937-4d79-b1f2-ad5395d3cfdc" />
+ | <img width="1242" height="2688" alt="4" src="https://github.com/user-attachments/assets/c6db46f7-c344-4538-86f2-377ef877d77d" />
+ |
 | 실시간 위치 기반 지도 | 거리순 정렬 목록 | 주차 현황 및 요금 | 다중 지도 앱 지원 |
 
 <br>

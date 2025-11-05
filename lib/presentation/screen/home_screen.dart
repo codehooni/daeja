@@ -1,8 +1,10 @@
 import 'package:daeja/features/user_location/provider/user_location_provider.dart';
+import 'package:daeja/presentation/theme/theme_provider.dart';
 import 'package:daeja/presentation/widget/map/map_control_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   final NaverMapController? mapController;
@@ -21,6 +23,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userLocation = context.watch<UserLocationProvider>();
+    final isDarkMode = context.watch<ThemeProvider>().isDarkMode;
 
     return Scaffold(
       body: Stack(
@@ -33,6 +36,8 @@ class HomeScreen extends StatelessWidget {
                 zoom: 15,
               ),
               locationButtonEnable: false,
+              mapType: isDarkMode ? NMapType.navi : NMapType.basic,
+              nightModeEnable: isDarkMode,
             ),
             onMapReady: (controller) {
               onMapReady?.call(controller);

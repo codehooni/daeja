@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
@@ -42,7 +43,7 @@ class CompassButton extends StatelessWidget {
             padding: EdgeInsets.zero,
             onPressed: _resetOrientation,
             icon: Icon(
-              Icons.navigation,
+              CupertinoIcons.compass,
               color: Theme.of(context).colorScheme.onSurface,
               size: 20.0,
             ),

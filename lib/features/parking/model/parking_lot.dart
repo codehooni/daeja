@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 class ParkingLot {
   final String id;
   final String? name;
@@ -23,6 +25,11 @@ class ParkingLot {
   final int? wmon; // 여성전용 잔여 주차구역 개수
   final int? etc; // 기타 잔여 주차구역 개수
 
+  // Date
+  final DateTime? lastUpdated;
+  // 주차장 타입 (공영:public, 민영:private)
+  final String? parkingType;
+
   ParkingLot({
     required this.id,
     this.name,
@@ -46,6 +53,8 @@ class ParkingLot {
     this.hndc,
     this.wmon,
     this.etc,
+    this.lastUpdated,
+    this.parkingType,
   });
 
   int get totalRemaining =>
@@ -62,8 +71,12 @@ class ParkingLot {
       id: json['id'] as String,
       name: json['name'] as String?,
       addr: json['addr'] as String?,
-      xCrdn: json['x_crdn'] as double?,
-      yCrdn: json['y_crdn'] as double?,
+      xCrdn: json['x_crdn'] is String
+          ? double.parse(json['x_crdn'])
+          : json['x_crdn'] as double?,
+      yCrdn: json['y_crdn'] is String
+          ? double.parse(json['y_crdn'])
+          : json['y_crdn'] as double?,
       parkDay: json['park_day'] as String?,
       wkdyStrt: json['wkdy_strt'] as String?,
       wkdyEnd: json['wkdy_end'] as String?,
@@ -81,6 +94,67 @@ class ParkingLot {
       hndc: json['hndc'] as int?,
       wmon: json['wmon'] as int?,
       etc: json['etc'] as int?,
+      lastUpdated: json['lastUpdated'] != null
+          ? DateTime.parse(json['lastUpdated'] as String)
+          : DateTime.now(),
+      parkingType: json['parking_type'] as String?,
     );
   }
+
+  ParkingLot copyWith({
+    String? id,
+    String? name,
+    String? addr,
+    double? xCrdn,
+    double? yCrdn,
+    String? parkDay,
+    String? wkdyStrt,
+    String? wkdyEnd,
+    String? lhdyStrt,
+    String? lhdyEnd,
+    int? basicTime,
+    int? basicFare,
+    int? addTime,
+    int? addFare,
+    int? wholNpls,
+    int? gnrl,
+    int? lgvh,
+    int? hvvh,
+    int? emvh,
+    int? hndc,
+    int? wmon,
+    int? etc,
+    DateTime? lastUpdated,
+    String? parkingType,
+  }) {
+    return ParkingLot(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      addr: addr ?? this.addr,
+      xCrdn: xCrdn ?? this.xCrdn,
+      yCrdn: yCrdn ?? this.yCrdn,
+      parkDay: parkDay ?? this.parkDay,
+      wkdyStrt: wkdyStrt ?? this.wkdyStrt,
+      wkdyEnd: wkdyEnd ?? this.wkdyEnd,
+      lhdyStrt: lhdyStrt ?? this.lhdyStrt,
+      lhdyEnd: lhdyEnd ?? this.lhdyEnd,
+      basicTime: basicTime ?? this.basicTime,
+      basicFare: basicFare ?? this.basicFare,
+      addTime: addTime ?? this.addTime,
+      addFare: addFare ?? this.addFare,
+      wholNpls: wholNpls ?? this.wholNpls,
+      gnrl: gnrl ?? this.gnrl,
+      lgvh: lgvh ?? this.lgvh,
+      hvvh: hvvh ?? this.hvvh,
+      emvh: emvh ?? this.emvh,
+      hndc: hndc ?? this.hndc,
+      wmon: wmon ?? this.wmon,
+      etc: etc ?? this.etc,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      parkingType: parkingType ?? this.parkingType,
+    );
+  }
+
+  @override
+  String toString() => 'ParkingLot(name: $name, lat: $yCrdn, lon: $xCrdn)\n';
 }

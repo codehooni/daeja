@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.5+20
+version: 1.1.6+21
 
 environment:
   sdk: ^3.8.1
@@ -35,41 +35,47 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  # 위치 권한 및 현재 위치 추적 (user_location_provider.dart, dialogs.dart에서 사용)
+  # 위치 권한 및 현재 위치 추적
   geolocator: ^14.0.2
 
-  # 상태 관리 - 테마 및 사용자 위치 Provider (main.dart에서사용)
-  provider: ^6.1.5+1
+  # 상태 관리 - Riverpod (전역 상태 관리)
+  flutter_riverpod: ^3.0.3
 
-  # 네이버 지도 SDK (main_screen.dart, home_screen.dart 등 지도관련 전체에서 사용)
+  # 로컬 데이터베이스 - Hive (설정 저장용)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # 네이버 지도 SDK
   flutter_naver_map: ^1.4.1+1
 
-  # URL 실행 - 이메일 앱 열기 (email_utils.dart에서 사용)
+  # URL 실행 - 이메일 앱 열기
   url_launcher: ^6.3.1
 
-  # HTTP 요청 - 제주 API 호출 (parking_lot_provider.dart에서사용)
+  # HTTP 요청 - 제주 API 호출
   http: ^1.2.2
 
-  # 공유 기능 (현재 미사용 - 삭제 가능, 추후 구현 예정이면 유지)
+  # 네트워크 요청 - dio
+  dio: ^5.9.0
+
+  # 공유 기능
   share_plus: ^12.0.0
 
-  # 앱 아이콘 생성 도구 (빌드 타임 전용, pubspec.yaml 설정으로사용)
+  # 앱 아이콘 생성 도구
   flutter_launcher_icons: ^0.14.4
 
-  # 환경 변수 관리 - API 키, 이메일 등 (.env 파일 로드, main.dart 등에서 사용)
+  # 환경 변수 관리
   flutter_dotenv: ^6.0.0
 
-  # 외부 지도 앱 실행 - 길찾기 기능 (navigation_selection_sheet.dart에서 사용)
+  # 외부 지도 앱 실행
   map_launcher: ^4.4.2
 
-  # SVG 이미지 렌더링 - 지도 앱 아이콘 표시 (navigation_selection_sheet.dart에서 사용)
+  # SVG 이미지 렌더링
   flutter_svg: ^2.0.16
-
-  # 상태 관리 Cubit 패턴 (parking_lot_cubit.dart, main_screen.dart 등에서 사용)
-  flutter_bloc: ^9.1.1
 
   # 시간 형식
   intl: ^0.20.2
+  firebase_core: ^4.2.1
+  cloud_firestore: ^6.1.0
 
 flutter_launcher_icons:
   android: true

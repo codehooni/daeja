@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "701371078920",
+    "project_id": "daeja-a9909",
+    "storage_bucket": "daeja-a9909.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701371078920:android:e3a5e95714aeecf463f4bd",
+        "android_client_info": {
+          "package_name": "com.ceyhun.daeja"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFZq9tT_Hx3uclVTptjLRcl1UXJ3yueNk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,38 +1,25 @@
+import 'package:daeja/features/settings/provider/theme_provider.dart';
 import 'package:daeja/presentation/dialogs/dialogs.dart';
-import 'package:daeja/presentation/theme/theme_provider.dart';
 import 'package:daeja/presentation/widget/my_setting_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
-  String _version = '';
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String get _developerEmail => dotenv.env['DEVELOPER_EMAIL'] ?? '';
 
   @override
-  void initState() {
-    super.initState();
-    _loadVersion();
-  }
-
-  Future<void> _loadVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _version = packageInfo.version;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = ref.watch(isDarkModeProvider);
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -45,9 +32,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             MySettingContainer(
               text: '테마 변경',
               item: CupertinoSwitch(
-                value: context.watch<ThemeProvider>().isDarkMode,
-                onChanged: (bool value) =>
-                    context.read<ThemeProvider>().toggleTheme(),
+                value: isDarkMode,
+                onChanged: (bool value) {
+                  ref.read(themeProvider.notifier).toggleTheme();
+                },
                 activeTrackColor: Theme.of(context).colorScheme.secondary,
               ),
             ),
@@ -104,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             MySettingContainer(
               text: '버전',
               item: Text(
-                _version,
+                '1.1.8',
                 style: TextStyle(
                   color: Theme.of(
                     context,

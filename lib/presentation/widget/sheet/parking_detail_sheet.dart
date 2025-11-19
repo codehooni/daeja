@@ -1,15 +1,13 @@
 import 'package:daeja/constants/constants.dart';
-import 'package:daeja/features/parking_lot/cubit/parking_lot_cubit.dart';
-import 'package:daeja/features/parking_lot/cubit/parking_lot_state.dart';
-import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
 import 'package:daeja/presentation/widget/sheet/badge/time_badge.dart';
 import 'package:daeja/presentation/widget/sheet/navigation_selection_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:daeja/utils/share_parking_lot.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../features/parking/model/parking_lot.dart';
+import '../../../features/parking/provider/parking_provider.dart';
 import '../../../utils/time_format.dart';
 
 class ParkingDetailSheet extends StatelessWidget {
@@ -32,16 +30,16 @@ class ParkingDetailSheet extends StatelessWidget {
   }
 }
 
-class DynamicBottomSheet extends StatefulWidget {
+class DynamicBottomSheet extends ConsumerStatefulWidget {
   final ParkingLot parking;
 
   const DynamicBottomSheet({super.key, required this.parking});
 
   @override
-  State<DynamicBottomSheet> createState() => _DynamicBottomSheetState();
+  ConsumerState<DynamicBottomSheet> createState() => _DynamicBottomSheetState();
 }
 
-class _DynamicBottomSheetState extends State<DynamicBottomSheet> {
+class _DynamicBottomSheetState extends ConsumerState<DynamicBottomSheet> {
   final GlobalKey _contentKey = GlobalKey();
   final DraggableScrollableController _sheetController =
       DraggableScrollableController();
@@ -563,8 +561,8 @@ class _DynamicBottomSheetState extends State<DynamicBottomSheet> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final state = context.read<ParkingLotCubit>().state;
-    final lastUpdated = state is ParkingLotResult ? state.lastUpdated : null;
+    final parkingDataAsync = ref.watch(parkingLotProvider);
+    final lastUpdated = widget.parking.lastUpdated;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

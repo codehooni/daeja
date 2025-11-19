@@ -1,38 +1,43 @@
 import 'dart:math';
 
 import 'package:daeja/constants/constants.dart';
-import 'package:daeja/features/parking_lot/cubit/parking_lot_cubit.dart';
-import 'package:daeja/features/parking_lot/cubit/parking_lot_state.dart';
-import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
+import 'package:daeja/features/parking/model/parking_lot.dart';
 import 'package:daeja/features/user_location/provider/user_location_provider.dart';
 import 'package:daeja/main.dart';
 import 'package:daeja/presentation/widget/sheet/badge/time_badge.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ParkingListSheet extends StatelessWidget {
+import '../../../features/parking/provider/parking_provider.dart';
+
+class ParkingListSheet extends ConsumerWidget {
   final Function(ParkingLot)? onParkingTap;
-  final DateTime? lastUpdated;
 
-  const ParkingListSheet({super.key, this.onParkingTap, this.lastUpdated});
+  const ParkingListSheet({super.key, this.onParkingTap});
 
-  static void show(BuildContext context, {Function(ParkingLot)? onParkingTap}) {
-    final state = context.read<ParkingLotCubit>().state;
-    final lastUpdated = state is ParkingLotResult ? state.lastUpdated : null;
-
+  static void show(
+    BuildContext context, {
+    Function(ParkingLot)? onParkingTap,
+    WidgetRef? ref,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => ParkingListSheet(
-        onParkingTap: onParkingTap,
-        lastUpdated: lastUpdated,
+      builder: (context) => Consumer(
+        builder: (context, ref, child) {
+          final parkingDataAsync = ref.watch(parkingLotProvider);
+
+          return ParkingListSheet(onParkingTap: onParkingTap);
+        },
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userLocationAsync = ref.watch(userLocationProvider);
+
     return Container(
       height: mq.height * 0.7,
       padding: sheetPadding,
@@ -45,7 +50,7 @@ class ParkingListSheet extends StatelessWidget {
         children: [
           SheetHandleBar(),
           _buildHeader(context),
-          Expanded(child: _buildContent(context)),
+          Expanded(child: _buildContent(context, ref)),
         ],
       ),
     );
@@ -54,50 +59,33 @@ class ParkingListSheet extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Spacer(),
-
-          Text(
-            '내 주변 주차장',
-            style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
-          ),
-
-          Expanded(
-            child: lastUpdated != null
-                ? Align(
-                    alignment: Alignment.centerRight,
-                    child: TimeBadge(lastUpdated: lastUpdated!),
-                  )
-                : SizedBox(),
-          ),
-        ],
+      child: Text(
+        '내 주변 주차장',
+        style: TextStyle(
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context) {
-    final userPosition = context.watch<UserLocationProvider>().currentPosition;
+  Widget _buildContent(BuildContext context, WidgetRef ref) {
+    final userPosition = ref.watch(userLocationProvider).asData?.value;
+    final parkingDataAsync = ref.watch(parkingLotProvider);
 
-    return BlocBuilder<ParkingLotCubit, ParkingLotState>(
-      builder: (context, state) {
-        // 로딩중
-        if (state is ParkingLotLoading) {
-          return Center(child: CircularProgressIndicator());
+    return parkingDataAsync.when(
+      data: (parkingData) {
+        // 위치 로딩중
+        if (userPosition == null) {
+          return const Center(child: CircularProgressIndicator());
         }
 
-        List<ParkingLot> parkingLots = [];
-
-        if (state is ParkingLotResult) {
-          parkingLots = state.parkingLots;
-        } else if (state is ParkingLotInitial) {
-          parkingLots = state.parkingLots;
+        if (parkingData.isEmpty) {
+          return const Center(child: Text('데이터가 없습니다.'));
         }
+
+        final parkingLots = parkingData;
 
         // 주차장 정보 없음
         if (parkingLots.isEmpty) {
@@ -136,6 +124,8 @@ class ParkingListSheet extends StatelessWidget {
           },
         );
       },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('데이터를 불러올 수 없습니다.\n$err')),
     );
   }
 

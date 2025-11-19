@@ -1,8 +1,7 @@
 import 'dart:developer';
 
-import 'package:daeja/features/parking_lot/cubit/parking_lot_cubit.dart';
-import 'package:daeja/features/parking_lot/cubit/parking_lot_state.dart';
-import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
+import 'package:daeja/features/parking/model/parking_lot.dart';
+import 'package:daeja/features/settings/provider/theme_provider.dart';
 import 'package:daeja/presentation/helper/parking_marker_helper.dart';
 import 'package:daeja/presentation/widget/my_bottom_navigation_item.dart';
 import 'package:daeja/presentation/screen/home_screen.dart';
@@ -12,17 +11,19 @@ import 'package:daeja/features/user_location/provider/user_location_provider.dar
 import 'package:daeja/presentation/widget/sheet/parking_detail_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/parking_list_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MainScreen extends StatefulWidget {
+import '../../features/parking/provider/parking_provider.dart';
+
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> {
   int _currentIndex = 0;
 
   NaverMapController? mapController;
@@ -62,18 +63,20 @@ class _MainScreenState extends State<MainScreen> {
 
   // 새로고침
   Future<void> _onRefresh() async {
-    context.read<ParkingLotCubit>().fetchParkingLots();
+    ref.read(parkingLotProvider.notifier).refresh();
   }
 
   // 내 위치로 이동
   Future<void> _onMyLocation() async {
     if (mapController == null) return;
 
-    final userLocation = context.read<UserLocationProvider>();
+    final position = ref.read(userLocationProvider).asData?.value;
+    if (position == null) return;
+
     await mapController!.updateCamera(
       NCameraUpdate.fromCameraPosition(
         NCameraPosition(
-          target: NLatLng(userLocation.latitude, userLocation.longitude),
+          target: NLatLng(position.latitude, position.longitude),
           zoom: 15.0,
         ),
       ),
@@ -135,7 +138,7 @@ class _MainScreenState extends State<MainScreen> {
 
     // 앱 시작 시 주차장 데이터 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ParkingLotCubit>().fetchParkingLots();
+      ref.read(parkingLotProvider.notifier).fetchParkingLots();
     });
   }
 
@@ -146,7 +149,8 @@ class _MainScreenState extends State<MainScreen> {
     });
 
     // 현재 위치로 초기 이동
-    final userLocation = context.read<UserLocationProvider>();
+    final position = ref.read(userLocationProvider).asData?.value;
+    if (position == null) return;
 
     // 내 위치 표시 활성화
     controller.setLocationTrackingMode(NLocationTrackingMode.follow);
@@ -154,25 +158,24 @@ class _MainScreenState extends State<MainScreen> {
     controller.updateCamera(
       NCameraUpdate.fromCameraPosition(
         NCameraPosition(
-          target: NLatLng(userLocation.latitude, userLocation.longitude),
+          target: NLatLng(position.latitude, position.longitude),
           zoom: 15,
         ),
       ),
     );
 
     // 마커들 추가하기
-    final parkingState = context.read<ParkingLotCubit>().state;
-    log('ParkingState : $parkingState');
-    if (parkingState is ParkingLotResult) {
-      await _loadMarkers(parkingState.parkingLots);
-    }
-    if (parkingState is ParkingLotInitial) {
-      await _loadMarkers(parkingState.parkingLots);
+    if (!mounted) return;
+    final parkingLots = ref.read(parkingLotProvider).asData?.value;
+    if (parkingLots != null) {
+      await _loadMarkers(parkingLots);
     }
   }
 
   Future<void> _loadMarkers(List<ParkingLot> parkingLots) async {
     if (mapController == null) return;
+
+    final isDarkMode = ref.read(isDarkModeProvider);
 
     // 기존 마커 제거
     await ParkingMarkerHelper.clearMarkers(mapController!, _markers);
@@ -183,6 +186,7 @@ class _MainScreenState extends State<MainScreen> {
       mapController!,
       parkingLots,
       _onMarkerTap,
+      isDarkMode: isDarkMode,
     );
   }
 
@@ -192,48 +196,54 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      body: BlocListener<ParkingLotCubit, ParkingLotState>(
-        listener: (context, state) {
-          if (state is ParkingLotResult) {
-            _loadMarkers(state.parkingLots);
-          }
-          if (state is ParkingLotInitial) {
-            _loadMarkers(state.parkingLots);
-          }
-        },
-        child: IndexedStack(index: _currentIndex, children: _screens),
-      ),
+    // 주차장 데이터 변경 감지
+    ref.listen<AsyncValue<List<ParkingLot>>>(parkingLotProvider, (
+      previous,
+      next,
+    ) {
+      next.whenData((parkingLots) {
+        _loadMarkers(parkingLots);
+      });
+    });
 
-      // Bottom App Bar
-      bottomNavigationBar: BottomAppBar(
-        // Modern Desing
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 12.0,
+    final asyncParkingLots = ref.watch(parkingLotProvider);
 
-        // Bottom Navigation Bar
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            MyBottomNavigationItem(
-              isMe: _currentIndex == 0,
-              icon: Icons.home,
-              onPressed: () => _onItemTapped(0),
-            ),
-            SizedBox(),
+    return switch (asyncParkingLots) {
+      AsyncData(:final value) => Scaffold(
+        extendBody: true,
+        body: IndexedStack(index: _currentIndex, children: _screens),
 
-            MyBottomNavigationItem(
-              isMe: _currentIndex == 1,
-              icon: Icons.settings,
-              onPressed: () => _onItemTapped(1),
-            ),
-          ],
+        // Bottom App Bar
+        bottomNavigationBar: BottomAppBar(
+          // Modern Desing
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 12.0,
+
+          // Bottom Navigation Bar
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              MyBottomNavigationItem(
+                isMe: _currentIndex == 0,
+                icon: Icons.home,
+                onPressed: () => _onItemTapped(0),
+              ),
+              SizedBox(),
+
+              MyBottomNavigationItem(
+                isMe: _currentIndex == 1,
+                icon: Icons.settings,
+                onPressed: () => _onItemTapped(1),
+              ),
+            ],
+          ),
         ),
+        floatingActionButton: MyFloatingActionButton(onPressed: _onFabPressed),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
-      floatingActionButton: MyFloatingActionButton(onPressed: _onFabPressed),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    );
+      AsyncError(:final error) => Text('error: $error'),
+      _ => const Center(child: CircularProgressIndicator()),
+    };
   }
 
   @override

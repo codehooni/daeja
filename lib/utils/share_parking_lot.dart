@@ -1,4 +1,4 @@
-import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
+import 'package:daeja/features/parking/model/parking_lot.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ShareParkingLot {

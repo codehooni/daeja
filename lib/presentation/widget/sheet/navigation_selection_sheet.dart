@@ -1,5 +1,5 @@
 import 'package:daeja/constants/constants.dart';
-import 'package:daeja/features/parking_lot/data/model/parking_lot.dart';
+import 'package:daeja/features/parking/model/parking_lot.dart';
 import 'package:flutter/material.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';

@@ -92,7 +92,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             MySettingContainer(
               text: '버전',
               item: Text(
-                '1.1.8',
+                '1.1.6',
                 style: TextStyle(
                   color: Theme.of(
                     context,

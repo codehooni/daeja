@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:daeja/utils/time_format.dart';
 
 class ParkingLot {
   final String id;
@@ -26,7 +26,7 @@ class ParkingLot {
   final int? etc; // 기타 잔여 주차구역 개수
 
   // Date
-  final DateTime? lastUpdated;
+  final DateTime? lastUpdated; // last_updated
   // 주차장 타입 (공영:public, 민영:private)
   final String? parkingType;
 
@@ -94,9 +94,7 @@ class ParkingLot {
       hndc: json['hndc'] as int?,
       wmon: json['wmon'] as int?,
       etc: json['etc'] as int?,
-      lastUpdated: json['lastUpdated'] != null
-          ? DateTime.parse(json['lastUpdated'] as String)
-          : DateTime.now(),
+      lastUpdated: TimeFormat.parseFirebaseTimestamp(json['last_updated']),
       parkingType: json['parking_type'] as String?,
     );
   }

@@ -5,7 +5,8 @@
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white)
 ![Naver Map](https://img.shields.io/badge/Naver%20Map%20API-00C73C?style=flat&logo=naver&logoColor=white)
-![BLoC](https://img.shields.io/badge/BLoC%2FCubit-02569B?style=flat&logo=flutter&logoColor=white)
+![Riverpod](https://img.shields.io/badge/Riverpod-02569B?style=flat&logo=flutter&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=firebase&logoColor=black)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 <br>
@@ -48,17 +49,19 @@
 
 | 항목 | 기술 | 버전 |
 |------|------|------|
-| Framework | Flutter | 3.0+ |
-| Language | Dart | 2.17+ |
-| 상태관리 | BLoC / Cubit | 9.1.1+ |
-| 로컬 저장소 | SharedPreferences | - |
+| Framework | Flutter | 3.8+ |
+| Language | Dart | 3.8+ |
+| 상태관리 | Riverpod | 3.0.3+ |
+| 로컬 저장소 | Hive | 2.2.3+ |
+| 백엔드 | Firebase Firestore | 6.1.0+ |
 | 테마 관리 | Custom Theme Provider | - |
 
 ### 🌐 **External APIs & Services**
 
 | 서비스 | 목적 | 패키지 |
 |--------|------|--------|
-| Naver Map API | 지도 표시 및 길찾기 | flutter_naver_map ^1.4.1 |
+| Firebase Firestore | 주차장 데이터 저장 | cloud_firestore ^6.1.0 |
+| Naver Map API | 지도 표시 및 길찾기 | flutter_naver_map ^1.4.1+1 |
 | Jeju ITS Open API | 실시간 주차 정보 | http ^1.2.2 |
 | GPS / Geolocator | 현재 위치 조회 | geolocator ^14.0.2 |
 | URL Launcher | 네이버 지도 앱 연동 | url_launcher ^6.3.1 |
@@ -68,16 +71,21 @@
 
 ```yaml
 dependencies:
-  flutter_naver_map: ^1.4.1+       # 네이버 지도
+  flutter_riverpod: ^3.0.3         # 상태 관리
+  firebase_core: ^4.2.1            # Firebase 코어
+  cloud_firestore: ^6.1.0          # Firestore 데이터베이스
+  hive: ^2.2.3                     # 로컬 저장소
+  hive_flutter: ^1.1.0             # Hive Flutter 통합
+  flutter_naver_map: ^1.4.1+1      # 네이버 지도
   http: ^1.2.2                     # HTTP 통신
+  dio: ^5.9.0                      # 네트워크 요청
   geolocator: ^14.0.2              # GPS 위치 서비스
   url_launcher: ^6.3.1             # 외부 앱 실행
-  provider: ^6.1.5+                # 상태 관리
-  flutter_bloc: ^9.1.1             # BLoC/Cubit 상태 관리
   map_launcher: ^4.4.2             # 다중 지도 앱 지원
   flutter_svg: ^2.0.16             # SVG 렌더링
   share_plus: ^12.0.0              # 공유 기능
   flutter_dotenv: ^6.0.0           # 환경 변수 관리
+  intl: ^0.20.2                    # 시간 형식
 ```
 
 <br>
@@ -292,15 +300,15 @@ GET /infoParkingStateList?code={API_KEY}
 
 ### 🤖 Android
 
-- **상태:** Google Play Store 비공개 테스트 진행 중
-- **빌드 버전:** 1.1.0+15
-- **정식 출시 예정일:** 2025년 11월 중
+- **상태:** Google Play Store 출시 완료 ✅
+- **출시일:** 2025년 11월 6일
+- **빌드 버전:** 1.1.7+23
 
 ### 🍎 iOS
 
 - **상태:** App Store 출시 완료 ✅
 - **출시일:** 2025년 10월 17일
-- **빌드 버전:** 1.1.0+15
+- **빌드 버전:** 1.1.7+23
 
 <br>
 
@@ -309,9 +317,11 @@ GET /infoParkingStateList?code={API_KEY}
 ### 💡 **기술적 성과**
 
 - **공공 데이터 API 연동:** 제주 교통정보센터 Open API를 활용한 실시간 데이터 처리
+- **Firebase 통합:** Cloud Firestore를 활용한 주차장 데이터 관리 및 제주공항 데이터 추가
+- **Riverpod 상태관리:** BLoC/Cubit에서 Riverpod으로 마이그레이션하여 더 효율적인 상태 관리 구현
+- **로컬 저장소 최적화:** SharedPreferences에서 Hive로 마이그레이션하여 성능 향상
 - **GPS 기반 서비스:** Geolocator를 이용한 현재 위치 추적 및 근처 주차장 자동 검색
 - **지도 API 통합:** 네이버 지도 API 및 다중 네비게이션 앱 연동
-- **BLoC/Cubit 상태관리:** Flutter BLoC 패턴을 활용한 복잡한 상태 관리
 - **권한 관리:** iOS/Android 플랫폼별 권한 요청 처리
 - **환경 변수 관리:** flutter_dotenv를 활용한 안전한 API 키 관리
 - **다중 지도 앱 지원:** 네이버, 카카오, 구글, 애플 지도 등 사용자 선택 가능
@@ -342,8 +352,9 @@ GET /infoParkingStateList?code={API_KEY}
 
 ## 📄 라이선스
 
-이 프로젝트는 **MIT 라이선스** 하에 있습니다.
-자유롭게 사용, 수정, 배포할 수 있습니다.
+이 프로젝트는 **독점 소프트웨어**입니다.
+무단 복제, 수정, 배포를 금지합니다.
+© 2025 이지훈. All Rights Reserved.
 
 <br>
 
@@ -360,8 +371,10 @@ GET /infoParkingStateList?code={API_KEY}
 ## 🙏 감사의 말
 
 - 🏢 제주특별자치도 교통정보센터의 **Open API 제공**에 감사드립니다
+- 🏢 한국항공공사의 **Open API 제공**에 감사드립니다. 
 - 🗺️ 네이버 지도 API를 활용할 수 있게 해주신 **네이버**에 감사드립니다
 - 💙 피드백을 주신 **테스트 사용자**들께 감사드립니다
+- 🅿️ 첫 파트너가 되어주신 **조은주차장**께 감사드립니다
 
 <br>
 
@@ -372,7 +385,7 @@ GET /infoParkingStateList?code={API_KEY}
 **Made with ❤️ in Jeju, South Korea**
 
 ![Jeju](https://img.shields.io/badge/Location-Jeju%20Island-FF6B6B?style=flat)
-![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen?style=flat)
+![Version](https://img.shields.io/badge/Version-1.1.7-brightgreen?style=flat)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-yellow?style=flat)
 
 </div>

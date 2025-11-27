@@ -1,3 +1,4 @@
+import 'package:daeja/features/parking/model/parking_cluster.dart';
 import 'package:daeja/features/parking/model/parking_lot.dart';
 
 import 'package:flutter/material.dart';
@@ -133,5 +134,106 @@ class ParkingMarkerHelper {
         print('마커 삭제 오류 (무시): $e');
       }
     }
+  }
+
+  // 클러스터 마커 생성
+  static Future<NMarker> createClusterMarker(
+    BuildContext context,
+    ParkingCluster cluster,
+    VoidCallback onTap, {
+    required bool isDarkMode,
+  }) async {
+    final icon = await _createClusterIcon(
+      context,
+      cluster,
+      isDarkMode: isDarkMode,
+    );
+
+    final marker = NMarker(
+      id: 'cluster_${cluster.center.latitude}_${cluster.center.longitude}',
+      position: cluster.center,
+      icon: icon,
+    );
+
+    marker.setOnTapListener((_) => onTap());
+    return marker;
+  }
+
+  // 클러스터 아이콘 생성
+  static Future<NOverlayImage> _createClusterIcon(
+    BuildContext context,
+    ParkingCluster cluster, {
+    required bool isDarkMode,
+  }) async {
+    // 잔여 비율로 색상 결정
+    final ratio = cluster.remainingRatio;
+    Color backgroundColor;
+
+    if (ratio == 0) {
+      backgroundColor = Colors.red; // 만차
+    } else if (ratio < 0.3) {
+      backgroundColor = Colors.orange; // 거의 만차
+    } else {
+      backgroundColor = Colors.green; // 여유
+    }
+
+    // 테마에 따라 색상 조정
+    if (isDarkMode) {
+      backgroundColor = Color.lerp(backgroundColor, Colors.black, 0.3)!;
+    } else {
+      backgroundColor = Color.lerp(backgroundColor, Colors.white, 0.2)!;
+    }
+
+    // 발렛 주차장 포함 여부에 따라 테두리 결정
+    final hasValet = cluster.hasValetParking;
+    final borderColor = hasValet
+        ? valetBorderColor
+        : (isDarkMode ? Colors.grey[300]! : Colors.white);
+    final borderWidth = hasValet ? valetBorderWidth : 3.0;
+
+    return NOverlayImage.fromWidget(
+      context: context,
+      widget: Container(
+        width: 70,
+        height: 70,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          shape: BoxShape.circle,
+          border: Border.all(color: borderColor, width: borderWidth),
+        ),
+        child: Stack(
+          children: [
+            // 주차장 개수 (상단)
+            Positioned(
+              top: 8,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  '${cluster.count}곳',
+                  style: const TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            // 총 잔여 면수 (중앙)
+            Center(
+              child: Text(
+                cluster.totalRemaining.toString(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      size: const Size(55.0, 55.0),
+    );
   }
 }

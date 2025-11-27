@@ -4,7 +4,7 @@ import 'package:daeja/constants/constants.dart';
 import 'package:daeja/features/parking/model/parking_lot.dart';
 import 'package:daeja/features/user_location/provider/user_location_provider.dart';
 import 'package:daeja/main.dart';
-import 'package:daeja/presentation/widget/sheet/badge/time_badge.dart';
+import 'package:daeja/presentation/widget/sheet/badge/valet_badge.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,20 +24,12 @@ class ParkingListSheet extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Consumer(
-        builder: (context, ref, child) {
-          final parkingDataAsync = ref.watch(parkingLotProvider);
-
-          return ParkingListSheet(onParkingTap: onParkingTap);
-        },
-      ),
+      builder: (context) => ParkingListSheet(onParkingTap: onParkingTap),
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userLocationAsync = ref.watch(userLocationProvider);
-
     return Container(
       height: mq.height * 0.7,
       padding: sheetPadding,
@@ -158,6 +150,8 @@ class ParkingListSheet extends ConsumerWidget {
   }
 
   Widget _buildParkingItem(BuildContext context, ParkingLot parking) {
+    final isValetParking = parking.parkingType == 'valet';
+
     return Container(
       margin: EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -178,9 +172,20 @@ class ParkingListSheet extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 주차장 이름
-                Text(
-                  parking.name.toString(),
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    if (isValetParking) ...[
+                      const ValetBadge(),
+                      const SizedBox(width: 8),
+                    ],
+                    Flexible(
+                      child: Text(
+                        parking.name.toString(),
+                        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
 
                 SizedBox(height: 5.0),

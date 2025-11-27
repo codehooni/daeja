@@ -10,6 +10,7 @@ class HomeScreen extends ConsumerWidget {
   final Function(NaverMapController)? onMapReady;
   final VoidCallback? onRefresh;
   final VoidCallback? onMyLocation;
+  final Function(NCameraUpdateReason, bool)? onCameraChange;
 
   const HomeScreen({
     super.key,
@@ -17,6 +18,7 @@ class HomeScreen extends ConsumerWidget {
     this.onMapReady,
     this.onRefresh,
     this.onMyLocation,
+    this.onCameraChange,
   });
 
   @override
@@ -42,6 +44,7 @@ class HomeScreen extends ConsumerWidget {
               onMapReady: (controller) {
                 onMapReady?.call(controller);
               },
+              onCameraChange: onCameraChange,
             ),
 
             // 맵 컨트롤 버튼들

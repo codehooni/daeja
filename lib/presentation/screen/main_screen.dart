@@ -1,13 +1,16 @@
-import 'dart:developer';
+import 'dart:async';
 
+import 'package:daeja/features/parking/model/parking_cluster.dart';
 import 'package:daeja/features/parking/model/parking_lot.dart';
 import 'package:daeja/features/settings/provider/theme_provider.dart';
+import 'package:daeja/presentation/helper/parking_clustering_helper.dart';
 import 'package:daeja/presentation/helper/parking_marker_helper.dart';
 import 'package:daeja/presentation/widget/my_bottom_navigation_item.dart';
 import 'package:daeja/presentation/screen/home_screen.dart';
 import 'package:daeja/presentation/screen/settings_screen.dart';
 import 'package:daeja/presentation/widget/my_floating_action_button.dart';
 import 'package:daeja/features/user_location/provider/user_location_provider.dart';
+import 'package:daeja/presentation/widget/sheet/cluster_list_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/parking_detail_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/parking_list_sheet.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +32,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   NaverMapController? mapController;
 
   List<NMarker> _markers = [];
+  double _currentZoom = 15.0;
+  Timer? _debounceTimer;
 
   /*
 
@@ -43,6 +48,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       onMapReady: _onMapReady,
       onRefresh: _onRefresh,
       onMyLocation: _onMyLocation,
+      onCameraChange: _onCameraChange,
     ),
 
     const SettingsScreen(),
@@ -168,11 +174,40 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     if (!mounted) return;
     final parkingLots = ref.read(parkingLotProvider).asData?.value;
     if (parkingLots != null) {
-      await _loadMarkers(parkingLots);
+      await _loadMarkersWithClustering(parkingLots);
     }
   }
 
-  Future<void> _loadMarkers(List<ParkingLot> parkingLots) async {
+  // 카메라 변경 시 호출
+  void _onCameraChange(NCameraUpdateReason reason, bool animated) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _updateMarkersAfterCameraChange();
+    });
+  }
+
+  // 카메라 변경 후 마커 업데이트
+  Future<void> _updateMarkersAfterCameraChange() async {
+    if (mapController == null) return;
+
+    final cameraPosition = await mapController!.getCameraPosition();
+    final newZoom = cameraPosition.zoom;
+
+    // 줌 레벨이 변경되었으면 마커 재생성
+    if ((newZoom - _currentZoom).abs() > 0.5) {
+      setState(() {
+        _currentZoom = newZoom;
+      });
+
+      final parkingLots = ref.read(parkingLotProvider).asData?.value;
+      if (parkingLots != null) {
+        await _loadMarkersWithClustering(parkingLots);
+      }
+    }
+  }
+
+  // 클러스터링을 적용한 마커 로드
+  Future<void> _loadMarkersWithClustering(List<ParkingLot> parkingLots) async {
     if (mapController == null) return;
 
     final isDarkMode = ref.read(isDarkModeProvider);
@@ -180,25 +215,75 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     // 기존 마커 제거
     await ParkingMarkerHelper.clearMarkers(mapController!, _markers);
 
-    // 새 마커 추가
-    _markers = await ParkingMarkerHelper.addMarkers(
-      context,
-      mapController!,
-      parkingLots,
-      _onMarkerTap,
-      isDarkMode: isDarkMode,
-    );
+    // 클러스터링 수행
+    final clusters = ParkingClusteringHelper.cluster(parkingLots, _currentZoom);
+
+    // 클러스터 마커 생성
+    _markers = [];
+    for (final cluster in clusters) {
+      final marker = cluster.isSingleParkingLot
+          ? await ParkingMarkerHelper.createMarker(
+              context,
+              cluster.singleParkingLot!,
+              () => _onMarkerTap(cluster.singleParkingLot!),
+              isDarkMode: isDarkMode,
+            )
+          : await ParkingMarkerHelper.createClusterMarker(
+              context,
+              cluster,
+              () => _onClusterTap(cluster),
+              isDarkMode: isDarkMode,
+            );
+
+      await mapController!.addOverlay(marker);
+      _markers.add(marker);
+    }
+  }
+
+  // 기존 메서드 (테마 변경 시 사용)
+  Future<void> _loadMarkers(List<ParkingLot> parkingLots) async {
+    await _loadMarkersWithClustering(parkingLots);
   }
 
   void _onMarkerTap(ParkingLot parking) {
     ParkingDetailSheet.show(context, parking);
   }
 
+  // 클러스터 탭 처리
+  void _onClusterTap(ParkingCluster cluster) async {
+    if (mapController == null) return;
+
+    // 클러스터 영역으로 줌 인
+    final newZoom = _currentZoom + 2;
+    await mapController!.updateCamera(
+      NCameraUpdate.fromCameraPosition(
+        NCameraPosition(target: cluster.center, zoom: newZoom.clamp(0, 21)),
+      ),
+    );
+
+    // 클러스터 리스트 바텀시트 표시
+    ClusterListSheet.show(
+      context,
+      cluster,
+      onParkingTap: _onParkingSelected,
+    );
+  }
+
+  @override
+  void dispose() {
+    // 마커 정리
+    if (mapController != null) {
+      ParkingMarkerHelper.clearMarkers(mapController!, _markers);
+    }
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     // 주차장 데이터 변경 감지
     ref.listen<AsyncValue<List<ParkingLot>>>(parkingLotProvider, (
-      previous,
+      _,
       next,
     ) {
       next.whenData((parkingLots) {
@@ -207,7 +292,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     });
 
     // 테마 변경 감지
-    ref.listen<bool>(isDarkModeProvider, (previous, next) {
+    ref.listen<bool>(isDarkModeProvider, (_, next) {
       final parkingLots = ref.read(parkingLotProvider).asData?.value;
       if (parkingLots != null) {
         _loadMarkers(parkingLots);
@@ -217,7 +302,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final asyncParkingLots = ref.watch(parkingLotProvider);
 
     return switch (asyncParkingLots) {
-      AsyncData(:final value) => Scaffold(
+      AsyncData() => Scaffold(
         extendBody: true,
         body: IndexedStack(index: _currentIndex, children: _screens),
 
@@ -252,14 +337,5 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       AsyncError(:final error) => Text('error: $error'),
       _ => const Center(child: CircularProgressIndicator()),
     };
-  }
-
-  @override
-  void dispose() {
-    // 마커 정리
-    if (mapController != null) {
-      ParkingMarkerHelper.clearMarkers(mapController!, _markers);
-    }
-    super.dispose();
   }
 }

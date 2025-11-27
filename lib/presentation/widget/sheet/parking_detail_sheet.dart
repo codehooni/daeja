@@ -1,5 +1,7 @@
 import 'package:daeja/constants/constants.dart';
+import 'package:daeja/presentation/screen/reservation_screen.dart';
 import 'package:daeja/presentation/widget/sheet/badge/time_badge.dart';
+import 'package:daeja/presentation/widget/sheet/badge/valet_badge.dart';
 import 'package:daeja/presentation/widget/sheet/navigation_selection_sheet.dart';
 import 'package:daeja/presentation/widget/sheet/sheet_handle_bar.dart';
 import 'package:daeja/utils/share_parking_lot.dart';
@@ -563,22 +565,31 @@ class _DynamicBottomSheetState extends ConsumerState<DynamicBottomSheet> {
   Widget _buildHeader(BuildContext context) {
     final parkingDataAsync = ref.watch(parkingLotProvider);
     final lastUpdated = widget.parking.lastUpdated;
+    final isValetParking = widget.parking.parkingType == 'valet';
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // 주차장 이름
+        // 주차장 이름 + 발렛 배지
         Expanded(
-          child: Text(
-            '${widget.parking.name}',
-            style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (isValetParking) ...[ValetBadge(), SizedBox(width: 8.0)],
+              Flexible(
+                child: Text(
+                  '${widget.parking.name}',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
           ),
         ),
 
@@ -590,6 +601,8 @@ class _DynamicBottomSheetState extends ConsumerState<DynamicBottomSheet> {
   }
 
   Widget _buildButton(BuildContext context) {
+    final isValetParking = widget.parking.parkingType == 'valet';
+
     return Column(
       children: [
         // 주소
@@ -626,16 +639,31 @@ class _DynamicBottomSheetState extends ConsumerState<DynamicBottomSheet> {
         // 버튼들
         Row(
           children: [
-            // 길찾기 버튼
+            // 길찾기/예약하기 버튼
             Expanded(
               flex: 2,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  NavigationSelectionSheet.show(context, widget.parking);
+                  if (isValetParking) {
+                    // 발렛 주차장: 예약 화면으로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ReservationScreen(parking: widget.parking),
+                      ),
+                    );
+                  } else {
+                    // 일반 주차장: 길찾기 선택 시트 표시
+                    NavigationSelectionSheet.show(context, widget.parking);
+                  }
                 },
-                icon: Icon(Icons.directions, size: 18.0),
+                icon: Icon(
+                  isValetParking ? Icons.event_available : Icons.directions,
+                  size: 18.0,
+                ),
                 label: Text(
-                  '길찾기',
+                  isValetParking ? '예약하기' : '길찾기',
                   style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(

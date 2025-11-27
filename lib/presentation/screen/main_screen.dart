@@ -206,6 +206,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       });
     });
 
+    // 테마 변경 감지
+    ref.listen<bool>(isDarkModeProvider, (previous, next) {
+      final parkingLots = ref.read(parkingLotProvider).asData?.value;
+      if (parkingLots != null) {
+        _loadMarkers(parkingLots);
+      }
+    });
+
     final asyncParkingLots = ref.watch(parkingLotProvider);
 
     return switch (asyncParkingLots) {

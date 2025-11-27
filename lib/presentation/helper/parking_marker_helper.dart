@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 class ParkingMarkerHelper {
+  // 발렛 주차장 테두리 색상 상수
+  static const Color valetBorderColor = Color(0xFFFFD700); // 골드색
+  static const double valetBorderWidth = 2.5;
   // 마커 생성
   static Future<NMarker> createMarker(
     BuildContext context,
@@ -14,6 +17,7 @@ class ParkingMarkerHelper {
     final icon = await _createIconWithNumber(
       context,
       parking.totalRemaining,
+      parkingType: parking.parkingType,
       isDarkMode: isDarkMode,
     );
 
@@ -31,6 +35,7 @@ class ParkingMarkerHelper {
   static Future<NOverlayImage> _createIconWithNumber(
     BuildContext context,
     int available, {
+    String? parkingType,
     required bool isDarkMode,
   }) async {
     // 색상 결정
@@ -43,10 +48,23 @@ class ParkingMarkerHelper {
       backgroundColor = Colors.green; // 여유
     }
 
-    // 다크모드 시 색상 어둡게 조정
+    // 테마에 따라 색상 조정
     if (isDarkMode) {
+      // 다크모드: 색상을 어둡게 조정
       backgroundColor = Color.lerp(backgroundColor, Colors.black, 0.3)!;
+    } else {
+      // 라이트모드: 색상을 밝게 조정
+      backgroundColor = Color.lerp(backgroundColor, Colors.white, 0.2)!;
     }
+
+    // 발렛 주차장 여부 확인
+    final isValetParking = parkingType == 'valet';
+
+    // 테두리 색상 및 두께 결정
+    final borderColor = isValetParking
+        ? valetBorderColor
+        : (isDarkMode ? Colors.grey[300]! : Colors.white);
+    final borderWidth = isValetParking ? valetBorderWidth : 3.0;
 
     return NOverlayImage.fromWidget(
       context: context,
@@ -56,10 +74,7 @@ class ParkingMarkerHelper {
         decoration: BoxDecoration(
           color: backgroundColor,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: isDarkMode ? Colors.grey[300]! : Colors.white,
-            width: 3,
-          ),
+          border: Border.all(color: borderColor, width: borderWidth),
         ),
         child: Center(
           child: Text(

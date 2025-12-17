@@ -25,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -70,6 +64,24 @@ class DefaultFirebaseOptions {
     projectId: 'daeja-a9909',
     storageBucket: 'daeja-a9909.firebasestorage.app',
     iosBundleId: 'com.ceyhun.daeja',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDq45IVtYh1im8_iHHdW_D5-Uk-eB1uMoI',
+    appId: '1:701371078920:ios:46fa50ba8f372fc463f4bd',
+    messagingSenderId: '701371078920',
+    projectId: 'daeja-a9909',
+    storageBucket: 'daeja-a9909.firebasestorage.app',
+    iosBundleId: 'com.ceyhun.daeja',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyC5TVOgiJR8wGdeoZzM-HYBdp7gfxlNGrU',
+    appId: '1:701371078920:web:f4350bbb12ad312863f4bd',
+    messagingSenderId: '701371078920',
+    projectId: 'daeja-a9909',
+    authDomain: 'daeja-a9909.firebaseapp.com',
+    storageBucket: 'daeja-a9909.firebasestorage.app',
   );
 
 }

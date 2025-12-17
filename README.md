@@ -62,7 +62,7 @@
 |--------|------|--------|
 | Firebase Firestore | 주차장 데이터 저장 | cloud_firestore ^6.1.0 |
 | Naver Map API | 지도 표시 및 길찾기 | flutter_naver_map ^1.4.1+1 |
-| Jeju ITS Open API | 실시간 주차 정보 | http ^1.2.2 |
+| Jeju ITS Open API | 실시간 주차 정보 | dio ^5.9.0 |
 | GPS / Geolocator | 현재 위치 조회 | geolocator ^14.0.2 |
 | URL Launcher | 네이버 지도 앱 연동 | url_launcher ^6.3.1 |
 | Map Launcher | 다중 지도 앱 지원 | map_launcher ^4.4.2 |
@@ -77,7 +77,7 @@ dependencies:
   hive: ^2.2.3                     # 로컬 저장소
   hive_flutter: ^1.1.0             # Hive Flutter 통합
   flutter_naver_map: ^1.4.1+1      # 네이버 지도
-  http: ^1.2.2                     # HTTP 통신
+  dio: ^5.9.0                      # HTTP 통신
   dio: ^5.9.0                      # 네트워크 요청
   geolocator: ^14.0.2              # GPS 위치 서비스
   url_launcher: ^6.3.1             # 외부 앱 실행
@@ -109,6 +109,7 @@ dependencies:
 - Android Studio 또는 Xcode
 - 네이버 클라우드 플랫폼 계정
 - 제주 교통정보센터 Open API 가입
+- 공항 API 가입
 ```
 
 ### ⚙️ 설치 방법
@@ -134,6 +135,7 @@ flutter pub get
 # .env
 NAVER_MAP_CLIENT_ID=your_naver_map_client_id
 JEJU_API_CODE=your_jeju_api_code
+AIRPORT_API_KEY=your_airport_api_code_here
 DEVELOPER_EMAIL=your_email@example.com
 ```
 

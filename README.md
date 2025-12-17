@@ -54,15 +54,18 @@
 | 상태관리 | Riverpod | 3.0.3+ |
 | 로컬 저장소 | Hive | 2.2.3+ |
 | 백엔드 | Firebase Firestore | 6.1.0+ |
-| 테마 관리 | Custom Theme Provider | - |
+| 인증 | Firebase Auth | 6.1.2+ |
+| 아키텍처 | Clean Architecture | - |
 
 ### 🌐 **External APIs & Services**
 
 | 서비스 | 목적 | 패키지 |
 |--------|------|--------|
+| Firebase Auth | 전화번호 인증 | firebase_auth ^6.1.2 |
 | Firebase Firestore | 주차장 데이터 저장 | cloud_firestore ^6.1.0 |
 | Naver Map API | 지도 표시 및 길찾기 | flutter_naver_map ^1.4.1+1 |
 | Jeju ITS Open API | 실시간 주차 정보 | dio ^5.9.0 |
+| Airport Open API | 공항 주차 정보 | dio ^5.9.0 |
 | GPS / Geolocator | 현재 위치 조회 | geolocator ^14.0.2 |
 | URL Launcher | 네이버 지도 앱 연동 | url_launcher ^6.3.1 |
 | Map Launcher | 다중 지도 앱 지원 | map_launcher ^4.4.2 |
@@ -73,11 +76,11 @@
 dependencies:
   flutter_riverpod: ^3.0.3         # 상태 관리
   firebase_core: ^4.2.1            # Firebase 코어
+  firebase_auth: ^6.1.2            # Firebase 인증
   cloud_firestore: ^6.1.0          # Firestore 데이터베이스
   hive: ^2.2.3                     # 로컬 저장소
   hive_flutter: ^1.1.0             # Hive Flutter 통합
   flutter_naver_map: ^1.4.1+1      # 네이버 지도
-  dio: ^5.9.0                      # HTTP 통신
   dio: ^5.9.0                      # 네트워크 요청
   geolocator: ^14.0.2              # GPS 위치 서비스
   url_launcher: ^6.3.1             # 외부 앱 실행
@@ -134,8 +137,10 @@ flutter pub get
 ```bash
 # .env
 NAVER_MAP_CLIENT_ID=your_naver_map_client_id
+NAVER_CLIENT_ID=your_naver_client_id
+NAVER_CLIENT_SECRET=your_naver_client_secret
 JEJU_API_CODE=your_jeju_api_code
-AIRPORT_API_KEY=your_airport_api_code_here
+AIRPORT_API_KEY=your_airport_api_code
 DEVELOPER_EMAIL=your_email@example.com
 ```
 
@@ -149,75 +154,166 @@ flutter run
 
 ## 🏗️ 프로젝트 구조
 
+Clean Architecture 기반으로 설계된 프로젝트 구조입니다.
+
 ```
 lib/
-├── constants/
-│   └── constants.dart                    # 앱 전역 상수 (패딩, 테마 등)
-│
-├── features/
-│   ├── parking_lot/
-│   │   ├── cubit/
-│   │   │   ├── parking_lot_cubit.dart    # 주차장 상태 관리 (Cubit)
-│   │   │   └── parking_lot_state.dart    # 주차장 상태 정의
-│   │   ├── data/
-│   │   │   ├── model/
-│   │   │   │   └── parking_lot.dart      # 주차장 데이터 모델
-│   │   │   ├── provider/
-│   │   │   │   └── parking_lot_provider.dart # 제주 ITS API 데이터 제공
-│   │   │   ├── repository/
-│   │   │   │   └── parking_lot_repository.dart # 주차장 데이터 저장소
-│   │   │   └── static_parking_lots.dart  # 정적 주차장 데이터
+├── core/                                 # 공통 모듈
+│   ├── constants/
+│   │   ├── airport_constants.dart        # 공항 주차장 상수
+│   │   ├── api_constants.dart            # API 상수
+│   │   └── app_constants.dart            # 앱 전역 상수
 │   │
-│   └── user_location/
-│       └── provider/
-│           └── user_location_provider.dart # 사용자 위치 상태 관리
-│
-├── presentation/
-│   ├── dialogs/
-│   │   └── dialogs.dart                  # 공통 다이얼로그/스낵바
+│   ├── utils/
+│   │   └── logger.dart                   # 로깅 유틸리티
 │   │
-│   ├── helper/
-│   │   └── parking_marker_helper.dart    # 지도 마커 생성 헬퍼
-│   │
-│   ├── screen/
-│   │   ├── home_screen.dart              # 홈 화면 (지도)
-│   │   ├── main_screen.dart              # 메인 화면 (네비게이션)
-│   │   └── settings_screen.dart          # 설정 화면
-│   │
-│   ├── theme/
-│   │   ├── dark_mode.dart                # 다크 모드 테마
-│   │   ├── light_mode.dart               # 라이트 모드 테마
-│   │   └── theme_provider.dart           # 테마 상태 관리
-│   │
-│   └── widget/
+│   └── widgets/                          # 공통 위젯
+│       ├── common/
+│       │   ├── error_view.dart           # 에러 뷰
+│       │   └── loading_indicator.dart    # 로딩 인디케이터
+│       │
 │       ├── map/
-│       │   ├── compass_button.dart       # 나침반 버튼
-│       │   ├── map_control_buttons.dart  # 지도 제어 버튼 모음
-│       │   ├── my_location_button.dart   # 내 위치 버튼
-│       │   ├── refresh_button.dart       # 새로고침 버튼
-│       │   └── zoom_buttons.dart         # 줌 버튼
+│       │   ├── cluster_marker.dart       # 클러스터 마커
+│       │   └── parking_marker.dart       # 주차장 마커
 │       │
-│       ├── sheet/
-│       │   ├── navigation_selection_sheet.dart # 길찾기 앱 선택
-│       │   ├── parking_detail_sheet.dart # 주차장 상세 정보
-│       │   ├── parking_list_sheet.dart   # 주차장 목록
-│       │   └── sheet_handle_bar.dart     # 바텀시트 핸들바
+│       └── sheet/
+│           └── parking_bottom_sheet.dart # 주차장 바텀시트
+│
+├── features/                             # 도메인별 기능 모듈
+│   ├── auth/                             # 인증 도메인
+│   │   ├── data/
+│   │   │   ├── datasource/
+│   │   │   │   └── remote/
+│   │   │   │       ├── auth_remote_datasource.dart
+│   │   │   │       ├── auth_remote_datasource_fake.dart
+│   │   │   │       └── auth_remote_datasource_firebase.dart
+│   │   │   └── repositories/
+│   │   │       └── auth_repository_impl.dart
+│   │   │
+│   │   ├── domain/
+│   │   │   ├── models/
+│   │   │   │   └── auth_user.dart        # 인증 사용자 모델
+│   │   │   └── repositories/
+│   │   │       └── auth_repository.dart  # 인증 저장소 인터페이스
+│   │   │
+│   │   └── presentation/
+│   │       └── providers/
+│   │           ├── auth_provider.dart    # 인증 상태 제공자
+│   │           ├── data/
+│   │           │   └── datasource_providers.dart
+│   │           └── domain/
+│   │               └── repository_providers.dart
+│   │
+│   ├── location/                         # 위치 도메인
+│   │   ├── data/
+│   │   │   ├── datasource/
+│   │   │   │   └── local/
+│   │   │   │       └── location_datasource.dart
+│   │   │   └── repositories/
+│   │   │       └── location_repository_impl.dart
+│   │   │
+│   │   ├── domain/
+│   │   │   ├── models/
+│   │   │   │   └── user_location.dart    # 사용자 위치 모델
+│   │   │   └── repositories/
+│   │   │       └── location_repository.dart
+│   │   │
+│   │   └── presentation/
+│   │       └── providers/
+│   │           ├── location_providers.dart
+│   │           ├── data/
+│   │           │   └── datasource_providers.dart
+│   │           └── domain/
+│   │               └── repository_providers.dart
+│   │
+│   ├── parking/                          # 주차장 도메인
+│   │   ├── data/
+│   │   │   ├── datasources/
+│   │   │   │   └── remote/
+│   │   │   │       ├── airport_api_datasource.dart
+│   │   │   │       ├── jeju_api_datasource.dart
+│   │   │   │       ├── private_parking_lot_datasource.dart
+│   │   │   │       └── seoul_api_datasource.dart
+│   │   │   │
+│   │   │   ├── entities/                 # API 응답 모델
+│   │   │   │   ├── airport_parking_entity.dart
+│   │   │   │   ├── jeju_parking_info_entity.dart
+│   │   │   │   ├── jeju_parking_status_entity.dart
+│   │   │   │   ├── private_parking_entity.dart
+│   │   │   │   └── seoul_parking_entity.dart
+│   │   │   │
+│   │   │   ├── mappers/
+│   │   │   │   └── parking_mapper.dart   # Entity → Model 변환
+│   │   │   │
+│   │   │   └── repositories/
+│   │   │       └── parking_repository_impl.dart
+│   │   │
+│   │   ├── domain/
+│   │   │   ├── models/
+│   │   │   │   ├── parking_cluster.dart  # 주차장 클러스터 모델
+│   │   │   │   └── parking_lot.dart      # 주차장 모델
+│   │   │   │
+│   │   │   ├── repositories/
+│   │   │   │   └── parking_repository.dart
+│   │   │   │
+│   │   │   └── services/
+│   │   │       ├── distance_service.dart # 거리 계산 서비스
+│   │   │       ├── parking_clustering_service.dart # 클러스터링 서비스
+│   │   │       └── parking_search_service.dart # 검색 서비스
+│   │   │
+│   │   └── presentation/
+│   │       └── providers/
+│   │           ├── parking_providers.dart
+│   │           ├── service_providers.dart
+│   │           ├── data/
+│   │           │   └── datasource_providers.dart
+│   │           └── domain/
+│   │               └── repository_providers.dart
+│   │
+│   └── user/                             # 사용자 도메인
+│       ├── data/
+│       │   ├── datasource/
+│       │   │   └── remote/
+│       │   │       ├── user_remote_datasource.dart
+│       │   │       └── user_remote_datasource_firebase.dart
+│       │   │
+│       │   ├── entities/
+│       │   │   └── user_location_entity.dart
+│       │   │
+│       │   └── repositories/
+│       │       └── user_repository_impl.dart
 │       │
-│       ├── my_bottom_navigation_item.dart # 하단 네비게이션 아이템
-│       ├── my_floating_action_button.dart # 커스텀 FAB
-│       └── my_setting_container.dart     # 설정 컨테이너
+│       ├── domain/
+│       │   ├── models/
+│       │   │   ├── car.dart              # 차량 모델
+│       │   │   └── user.dart             # 사용자 모델
+│       │   │
+│       │   └── repositories/
+│       │       └── user_repository.dart
+│       │
+│       └── presentation/
+│           └── providers/
+│               ├── user_provider.dart
+│               ├── data/
+│               │   └── datasource_providers.dart
+│               └── domain/
+│                   └── repository_providers.dart
 │
-├── utils/
-│   ├── email_utils.dart                  # 이메일 관련 유틸
-│   └── share_parking_lot.dart            # 주차장 정보 공유
-│
-├── models/
-│   └── parking_lot.dart                  # (레거시) 주차장 모델
-│
-├── my_observer.dart                      # BLoC 옵저버 (디버깅)
+├── screens/                              # 화면 (임시)
+│   ├── parking_map_screen.dart
+│   ├── parking_test_screen.dart
+│   └── test_screen.dart
 │
 └── main.dart                             # 앱 진입점
 ```
+
+### 아키텍처 설명
+
+각 도메인(feature)은 **Clean Architecture** 3계층으로 구성:
+
+- **Data Layer**: API 통신, 데이터 변환, Repository 구현
+- **Domain Layer**: 비즈니스 로직, 모델, Repository 인터페이스, 서비스
+- **Presentation Layer**: UI 상태 관리(Riverpod), Provider 정의
 
 <br>
 
@@ -304,13 +400,13 @@ GET /infoParkingStateList?code={API_KEY}
 
 - **상태:** Google Play Store 출시 완료 ✅
 - **출시일:** 2025년 11월 6일
-- **빌드 버전:** 1.1.7+23
+- **빌드 버전:** 1.1.8+24
 
 ### 🍎 iOS
 
 - **상태:** App Store 출시 완료 ✅
 - **출시일:** 2025년 10월 17일
-- **빌드 버전:** 1.1.7+23
+- **빌드 버전:** 1.1.8+24
 
 <br>
 
@@ -318,8 +414,9 @@ GET /infoParkingStateList?code={API_KEY}
 
 ### 💡 **기술적 성과**
 
-- **공공 데이터 API 연동:** 제주 교통정보센터 Open API를 활용한 실시간 데이터 처리
-- **Firebase 통합:** Cloud Firestore를 활용한 주차장 데이터 관리 및 제주공항 데이터 추가
+- **Clean Architecture 적용:** 도메인별 레이어 분리로 유지보수성 및 테스트 용이성 향상
+- **공공 데이터 API 연동:** 제주 교통정보센터 및 공항 Open API를 활용한 실시간 데이터 처리
+- **Firebase 통합:** Firebase Auth(전화번호 인증), Cloud Firestore를 활용한 데이터 관리
 - **Riverpod 상태관리:** BLoC/Cubit에서 Riverpod으로 마이그레이션하여 더 효율적인 상태 관리 구현
 - **로컬 저장소 최적화:** SharedPreferences에서 Hive로 마이그레이션하여 성능 향상
 - **GPS 기반 서비스:** Geolocator를 이용한 현재 위치 추적 및 근처 주차장 자동 검색
@@ -387,7 +484,7 @@ GET /infoParkingStateList?code={API_KEY}
 **Made with ❤️ in Jeju, South Korea**
 
 ![Jeju](https://img.shields.io/badge/Location-Jeju%20Island-FF6B6B?style=flat)
-![Version](https://img.shields.io/badge/Version-1.1.7-brightgreen?style=flat)
+![Version](https://img.shields.io/badge/Version-1.1.8-brightgreen?style=flat)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-yellow?style=flat)
 
 </div>

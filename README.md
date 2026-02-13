@@ -77,7 +77,7 @@
 
 | 지도 화면 | 주차장 목록 | 상세 정보 | 발렛 예약 |
 |:---:|:---:|:---:|:---:|
-| <img width="280" alt="지도 화면" src="https://github.com/user-attachments/assets/cff31169-f4dc-4fa3-a6e7-2e3208334cd3" /> | <img width="280" alt="주차장 목록" src="https://github.com/user-attachments/assets/bd87b92a-8f95-4638-ae96-5a388e732cba" /> | <img width="280" alt="상세 정보" src="https://github.com/user-attachments/assets/85a41308-b937-4d79-b1f2-ad5395d3cfdc" /> | <img width="280" alt="발렛 예약" src="https://github.com/user-attachments/assets/c6db46f7-c344-4538-86f2-377ef877d77d" /> |
+| <img width="280" height="606" alt="1" src="https://github.com/user-attachments/assets/125becf0-617a-416c-bd36-7b52f51b2da0" /> | <img width="280" height="606" alt="2" src="https://github.com/user-attachments/assets/133a320a-c197-4fe5-88f3-0037dff1faca" /> | <img width="280" height="606" alt="3" src="https://github.com/user-attachments/assets/083df73a-373d-41e3-9fb7-401704389157" /> | <img width="280" height="606" alt="5" src="https://github.com/user-attachments/assets/3785ce17-242e-4065-b6a9-979f5510bfc1" /> |
 | 실시간 위치 기반 지도 | 거리순 정렬 목록 | 주차 현황 및 요금 | 편리한 발렛 예약 신청 |
 
 <br>

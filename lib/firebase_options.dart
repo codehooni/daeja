@@ -47,6 +47,7 @@ class DefaultFirebaseOptions {
     projectId: 'daeja-a9909',
     authDomain: 'daeja-a9909.firebaseapp.com',
     storageBucket: 'daeja-a9909.firebasestorage.app',
+    measurementId: 'G-YH3931V1PM',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

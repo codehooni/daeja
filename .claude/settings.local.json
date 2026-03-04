@@ -16,7 +16,21 @@
       "Bash(git push:*)",
       "Bash(bundletool dump manifest:*)",
       "Read(//Users/ijihun/.pub-cache/**)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebSearch",
+      "WebFetch(domain:note11.dev)",
+      "Bash(cat:*)",
+      "Bash(firebase functions:log:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(gcloud builds list:*)",
+      "Bash(firebase functions:list:*)",
+      "Bash(git restore:*)",
+      "Bash(firebase functions:delete:*)",
+      "Bash(xcrun simctl delete:*)",
+      "Bash(xcrun simctl boot:*)",
+      "Bash(keytool:*)",
+      "Bash(mdfind:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

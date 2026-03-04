@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-class VehicleEditScreen extends StatefulWidget {
-  const VehicleEditScreen({super.key});
+import '../../../../core/constants/vehicle_constants.dart';
+import '../../domain/models/vehicle.dart';
+import '../providers/user_provider.dart';
+
+class VehicleAddScreen extends ConsumerStatefulWidget {
+  const VehicleAddScreen({super.key});
 
   @override
-  State<VehicleEditScreen> createState() => _VehicleEditScreenState();
+  ConsumerState<VehicleAddScreen> createState() => _VehicleAddScreenState();
 }
 
-class _VehicleEditScreenState extends State<VehicleEditScreen> {
+class _VehicleAddScreenState extends ConsumerState<VehicleAddScreen> {
+  final _plateNumberController = TextEditingController();
   String? _selectedColor;
+  String? _selectedManufacturer;
+  String? _selectedModel;
+  bool _isSaving = false;
 
   final List<Map<String, dynamic>> _vehicleColors = [
     {'name': '흰색', 'color': Colors.white},
@@ -23,13 +32,82 @@ class _VehicleEditScreenState extends State<VehicleEditScreen> {
   ];
 
   @override
+  void dispose() {
+    _plateNumberController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    // Validate plate number (required field)
+    final plateNumber = _plateNumberController.text.trim();
+    if (plateNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('차량 번호를 입력해주세요'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      // Create vehicle object
+      final vehicle = Vehicle(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        plateNumber: plateNumber,
+        manufacturer: _selectedManufacturer,
+        model: _selectedModel,
+        color: _selectedColor,
+        type: VehicleType.sedan, // Default type
+      );
+
+      // Add vehicle via provider
+      await ref.read(userProvider.notifier).addVehicle(vehicle);
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('차량이 등록되었습니다'), backgroundColor: Colors.green),
+        );
+
+        // Navigate back
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('차량 등록에 실패했습니다: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: '차량 수정'.text.size(20).bold.make(),
+        title: '차량 추가'.text.size(20).bold.make(),
         actions: [
-          '저장'.text.size(16).color(Colors.blue).bold.make().pOnly(right: 16),
+          GestureDetector(
+            onTap: _isSaving ? null : _handleSave,
+            child: (_isSaving ? '저장 중...' : '저장').text
+                .size(16)
+                .color(_isSaving ? Colors.grey : Colors.blue)
+                .bold
+                .make()
+                .pOnly(right: 16),
+          ),
         ],
       ),
       backgroundColor: Colors.grey.shade50,
@@ -52,13 +130,6 @@ class _VehicleEditScreenState extends State<VehicleEditScreen> {
               // 색상
               _buildColor(),
               SizedBox(height: 16),
-
-              // Divider
-              Divider(color: Colors.grey.shade200),
-              SizedBox(height: 16),
-
-              // delete button
-              _buildDelete(),
             ],
           ).p(16),
         ),
@@ -79,11 +150,14 @@ class _VehicleEditScreenState extends State<VehicleEditScreen> {
         ),
         SizedBox(height: 8),
         TextField(
+          controller: _plateNumberController,
           cursorColor: Colors.blue,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             focusedBorder: OutlineInputBorder(),
             focusColor: Colors.blue,
+            hintText: '차량 번호를 입력하세요',
+            hintStyle: TextStyle(color: Colors.grey.shade400),
           ),
         ),
         SizedBox(height: 8),
@@ -103,31 +177,94 @@ class _VehicleEditScreenState extends State<VehicleEditScreen> {
         '제조사'.text.size(16).bold.make(),
         SizedBox(height: 8),
 
-        // todo 제조사 선택 (하드코딩)
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: DropdownButtonFormField<String>(
+            value: _selectedManufacturer,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              hintText: '제조사를 선택하세요',
+              hintStyle: TextStyle(color: Colors.grey.shade600),
+            ),
+            isExpanded: true,
+            items: VehicleConstants.getManufacturers().map((manufacturer) {
+              return DropdownMenuItem(
+                value: manufacturer,
+                child: Text(manufacturer),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedManufacturer = value;
+                _selectedModel = null; // Reset model when manufacturer changes
+              });
+            },
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildModel() {
+    final models = VehicleConstants.getModels(_selectedManufacturer);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            '차량 번호 '.text.size(16).bold.make(),
-            '*'.text.size(18).color(Colors.red).make(),
-          ],
-        ),
+        '모델명'.text.size(16).bold.make(),
         SizedBox(height: 8),
-        TextField(
-          cursorColor: Colors.blue,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            focusedBorder: OutlineInputBorder(),
-            focusColor: Colors.blue,
+
+        if (_selectedManufacturer == null)
+          // Placeholder when no manufacturer selected
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Center(
+              child: '제조사를 먼저 선택해주세요'.text
+                  .size(14)
+                  .color(Colors.grey.shade600)
+                  .make(),
+            ),
+          )
+        else
+          // Dropdown when manufacturer is selected
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: DropdownButtonFormField<String>(
+              value: _selectedModel,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                hintText: '모델을 선택하세요',
+                hintStyle: TextStyle(color: Colors.grey.shade600),
+              ),
+              isExpanded: true,
+              items: models?.map((model) {
+                return DropdownMenuItem(value: model, child: Text(model));
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedModel = value;
+                });
+              },
+            ),
           ),
-        ),
       ],
     );
   }
@@ -201,21 +338,5 @@ class _VehicleEditScreenState extends State<VehicleEditScreen> {
         .border(color: isSelected ? Colors.blue : Colors.transparent, width: 2)
         .color(Colors.white)
         .make();
-  }
-
-  Widget _buildDelete() {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Icon
-          Icon(Icons.delete_outline, color: Colors.redAccent),
-          SizedBox(width: 8),
-
-          // Text
-          '차량 삭제'.text.size(16).color(Colors.redAccent).make(),
-        ],
-      ).pSymmetric(v: 8).box.roundedSM.color(Vx.red100).make(),
-    );
   }
 }

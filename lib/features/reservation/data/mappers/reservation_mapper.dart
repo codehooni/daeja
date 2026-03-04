@@ -1,45 +1,44 @@
-import '../../../qr_code/data/entities/qr_code.dart' as entity;
-import '../../../qr_code/domain/models/qr_code.dart' as model;
 import '../../data/entities/reservation.dart' as entity;
 import '../../domain/models/reservation.dart' as model;
 
-/// QrCode Entity를 Domain Model로 변환
-model.QrCode qrCodeEntityToModel(entity.QrCode entityQrCode) {
-  return model.QrCode(
-    qrCodeValue: entityQrCode.qrCodeValue,
-    reservationId: entityQrCode.reservationId,
-    visitorId: entityQrCode.visitorId,
-    parkingLotId: entityQrCode.parkingLotId,
-    expiresAt: entityQrCode.expiresAt,
-  );
+/// String을 ReservationStatus enum으로 변환
+model.ReservationStatus _statusFromString(String status) {
+  try {
+    return model.ReservationStatus.values.byName(status);
+  } catch (e) {
+    // 알 수 없는 상태는 pending으로 기본값 설정
+    return model.ReservationStatus.pending;
+  }
 }
 
-/// QrCode Domain Model을 Entity로 변환
-entity.QrCode qrCodeModelToEntity(model.QrCode modelQrCode) {
-  return entity.QrCode(
-    qrCodeValue: modelQrCode.qrCodeValue,
-    reservationId: modelQrCode.reservationId,
-    visitorId: modelQrCode.visitorId,
-    parkingLotId: modelQrCode.parkingLotId,
-    expiresAt: modelQrCode.expiresAt,
-  );
+/// ReservationStatus enum을 String으로 변환
+String _statusToString(model.ReservationStatus status) {
+  return status.name;
 }
 
 /// Reservation Entity를 Domain Model로 변환
-model.Reservation reservationEntityToModel(entity.Reservation entityReservation) {
+model.Reservation reservationEntityToModel(
+  entity.Reservation entityReservation,
+) {
   return model.Reservation(
     id: entityReservation.id,
     visitorId: entityReservation.visitorId,
     visitorVehicleId: entityReservation.visitorVehicleId,
+    visitorVehiclePlate: entityReservation.visitorVehiclePlate,
     parkingLotId: entityReservation.parkingLotId,
+    parkingLotName: entityReservation.parkingLotName,
+    parkingLotLat: entityReservation.parkingLotLat,
+    parkingLotLng: entityReservation.parkingLotLng,
     expectedArrival: entityReservation.expectedArrival,
     expectedExit: entityReservation.expectedExit,
-    status: entityReservation.status,
-    qrCode: qrCodeEntityToModel(entityReservation.qrCode),
+    status: _statusFromString(entityReservation.status),
     createdAt: entityReservation.createdAt,
     notes: entityReservation.notes,
     assignedSpotId: entityReservation.assignedSpotId,
     handledByStaffId: entityReservation.handledByStaffId,
+    handledByStaffName: entityReservation.handledByStaffName,
+    handledByStaffPhone: entityReservation.handledByStaffPhone,
+    profileImageUrl: entityReservation.profileImageUrl,
     actualArrival: entityReservation.actualArrival,
     actualExit: entityReservation.actualExit,
     logs: entityReservation.logs,
@@ -47,20 +46,28 @@ model.Reservation reservationEntityToModel(entity.Reservation entityReservation)
 }
 
 /// Reservation Domain Model을 Entity로 변환
-entity.Reservation reservationModelToEntity(model.Reservation modelReservation) {
+entity.Reservation reservationModelToEntity(
+  model.Reservation modelReservation,
+) {
   return entity.Reservation(
     id: modelReservation.id,
     visitorId: modelReservation.visitorId,
     visitorVehicleId: modelReservation.visitorVehicleId,
+    visitorVehiclePlate: modelReservation.visitorVehiclePlate,
     parkingLotId: modelReservation.parkingLotId,
+    parkingLotName: modelReservation.parkingLotName,
+    parkingLotLat: modelReservation.parkingLotLat,
+    parkingLotLng: modelReservation.parkingLotLng,
     expectedArrival: modelReservation.expectedArrival,
     expectedExit: modelReservation.expectedExit,
-    status: modelReservation.status,
-    qrCode: qrCodeModelToEntity(modelReservation.qrCode),
+    status: _statusToString(modelReservation.status),
     createdAt: modelReservation.createdAt,
     notes: modelReservation.notes,
     assignedSpotId: modelReservation.assignedSpotId,
     handledByStaffId: modelReservation.handledByStaffId,
+    handledByStaffName: modelReservation.handledByStaffName,
+    handledByStaffPhone: modelReservation.handledByStaffPhone,
+    profileImageUrl: modelReservation.profileImageUrl,
     actualArrival: modelReservation.actualArrival,
     actualExit: modelReservation.actualExit,
     logs: modelReservation.logs,

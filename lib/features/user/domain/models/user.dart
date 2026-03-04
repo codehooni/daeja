@@ -1,50 +1,67 @@
-import 'car.dart';
+import 'vehicle.dart';
 
 class User {
   final String uid;
-  final String phoneNumber;
   final String? name;
-  final List<Car>? cars;
+  final String phone;
+  final List<Vehicle>? vehicles;
   final DateTime? createdAt;
+  final String? fcmToken;
+  final bool notificationsEnabled;
 
   const User({
     required this.uid,
-    required this.phoneNumber,
+    required this.phone,
     this.name,
-    this.cars,
+    this.vehicles,
     this.createdAt,
+    this.fcmToken,
+    this.notificationsEnabled = true, // 기본값: 알림 켜짐
   });
 
   Map<String, dynamic> toJson() => {
     'uid': uid,
-    'phoneNumber': phoneNumber,
+    'phone': phone,
     'name': name,
-    'cars': cars?.map((car) => car.toJson()).toList(),
+    'vehicles': vehicles?.map((vehicle) => vehicle.toJson()).toList(),
     'createdAt': createdAt?.toIso8601String(),
+    'fcmToken': fcmToken,
+    'notificationsEnabled': notificationsEnabled,
   };
 
   factory User.fromJson(Map<String, dynamic> json) => User(
     uid: json['uid'],
-    phoneNumber: json['phoneNumber'],
+    phone: json['phone'],
     name: json['name'],
-    cars: (json['cars'] as List?)?.map((car) => Car.fromJson(car)).toList(),
+    vehicles: (json['vehicles'] as List?)
+        ?.map((vehicle) => Vehicle.fromJson(vehicle))
+        .toList(),
     createdAt: json['createdAt'] != null
         ? DateTime.parse(json['createdAt'])
         : null,
+    fcmToken: json['fcmToken'],
+    notificationsEnabled: json['notificationsEnabled'] ?? true, // 기존 사용자 호환성
   );
 
   User copyWith({
-    String? phoneNumber,
+    String? phone,
     String? name,
-    List<Car>? cars,
+    List<Vehicle>? vehicles,
     DateTime? createdAt,
+    Object? fcmToken = _undefined,
+    bool? notificationsEnabled,
   }) {
     return User(
       uid: uid,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
+      phone: phone ?? this.phone,
       name: name ?? this.name,
-      cars: cars ?? this.cars,
+      vehicles: vehicles ?? this.vehicles,
       createdAt: createdAt ?? this.createdAt,
+      fcmToken: fcmToken == _undefined ? this.fcmToken : fcmToken as String?,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     );
   }
 }
+
+// copyWith에서 null을 명시적으로 설정하기 위한 sentinel 값
+const _undefined = Object();

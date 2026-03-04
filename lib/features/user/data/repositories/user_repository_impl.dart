@@ -1,8 +1,11 @@
+import '../../../../core/services/fcm_token_service.dart';
+import '../../../../core/utils/logger.dart';
 import '../../../auth/domain/models/auth_user.dart';
-import '../../domain/models/car.dart';
+import '../../domain/models/vehicle.dart';
 import '../../domain/models/user.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasource/remote/user_remote_datasource.dart';
+import '../mappers/user_mapper.dart';
 
 class UserRepositoryImpl extends UserRepository {
   final UserRemoteDataSource _dataSource;
@@ -12,21 +15,28 @@ class UserRepositoryImpl extends UserRepository {
 
   @override
   Future<void> createUser(AuthUser authUser) async {
-    _currentUser = await _dataSource.createUser(authUser);
+    final userEntity = await _dataSource.createUser(authUser);
+    _currentUser = UserMapper.toModel(userEntity);
   }
 
   @override
   Future<User?> getUser() async {
+    if (_currentUser == null) {
+      Log.e('캐시된 유저가 없음');
+    }
     return _currentUser;
   }
 
   @override
   Future<void> updateUser({String? name, String? phoneNumber}) async {
-    if (_currentUser == null) return;
+    if (_currentUser == null) {
+      Log.e('유저가 없어 업데이트 불가');
+      return;
+    }
 
-    _currentUser = _currentUser!.copyWith(name: name, phoneNumber: phoneNumber);
-
-    await _dataSource.updateUser(_currentUser!);
+    _currentUser = _currentUser!.copyWith(name: name, phone: phoneNumber);
+    final userEntity = UserMapper.toEntity(_currentUser!);
+    await _dataSource.updateUser(userEntity);
   }
 
   @override
@@ -36,46 +46,59 @@ class UserRepositoryImpl extends UserRepository {
   }
 
   @override
-  Future<void> addCar(Car car) async {
+  Future<void> addVehicle(Vehicle vehicle) async {
     if (_currentUser == null) throw Exception('로그인 된 사용자가 없습니다.');
 
-    final cars = List<Car>.from(_currentUser!.cars ?? []);
+    final vehicles = List<Vehicle>.from(_currentUser!.vehicles ?? []);
+    vehicles.add(vehicle);
 
-    // 첫 번째 차량이면 기본 차량으로 설정
-    if (cars.isEmpty) {
-      cars.add(car.copyWith(isDefault: true));
+    _currentUser = _currentUser!.copyWith(vehicles: vehicles);
+
+    final userEntity = UserMapper.toEntity(_currentUser!);
+    await _dataSource.updateUser(userEntity);
+  }
+
+  @override
+  Future<void> removeVehicle(String vehicleNumber) async {
+    if (_currentUser == null) throw Exception('로그인 된 사용자가 없습니다.');
+
+    final vehicles = List<Vehicle>.from(_currentUser!.vehicles ?? []);
+    vehicles.removeWhere((vehicle) => vehicle.plateNumber == vehicleNumber);
+
+    _currentUser = _currentUser!.copyWith(vehicles: vehicles);
+
+    final userEntity = UserMapper.toEntity(_currentUser!);
+    await _dataSource.updateUser(userEntity);
+  }
+
+  @override
+  Future<void> updateNotificationSettings(bool enabled) async {
+    if (_currentUser == null) throw Exception('로그인 된 사용자가 없습니다.');
+
+    final fcmTokenService = FCMTokenService();
+    String? newFcmToken;
+
+    if (enabled) {
+      // 알림 켜기: FCM 토큰 저장
+      await fcmTokenService.initializeAndSaveToken(_currentUser!.uid);
+      newFcmToken = await fcmTokenService.getCurrentToken();
+      Log.d('[UserRepository] 알림 켜짐 - FCM 토큰 저장 완료: $newFcmToken');
     } else {
-      cars.add(car);
+      // 알림 끄기: FCM 토큰 삭제
+      await fcmTokenService.deleteToken(_currentUser!.uid);
+      newFcmToken = null;
+      Log.d('[UserRepository] 알림 꺼짐 - FCM 토큰 삭제 완료 (null)');
     }
 
-    _currentUser = _currentUser!.copyWith(cars: cars);
-    await _dataSource.updateUser(_currentUser!);
-  }
+    // notificationsEnabled 상태와 fcmToken 업데이트
+    _currentUser = _currentUser!.copyWith(
+      notificationsEnabled: enabled,
+      fcmToken: newFcmToken,
+    );
 
-  @override
-  Future<void> removeCar(String carNumber) async {
-    if (_currentUser == null) throw Exception('로그인 된 사용자가 없습니다.');
+    final userEntity = UserMapper.toEntity(_currentUser!);
+    await _dataSource.updateUser(userEntity);
 
-    var cars = List<Car>.from(_currentUser!.cars ?? []);
-    final removedCar = cars.firstWhere((c) => c.carNumber == carNumber);
-    cars.removeWhere((car) => car.carNumber == carNumber);
-
-    // 삭제된 차량이 기본 차량이었다면 첫 번째 차량을 기본으로 설정
-    if (removedCar.isDefault && cars.isNotEmpty) {
-      cars[0] = cars[0].copyWith(isDefault: true);
-    }
-
-    _currentUser = _currentUser!.copyWith(cars: cars);
-    await _dataSource.updateUser(_currentUser!);
-  }
-
-  @override
-  Future<void> setDefaultCar(String carNumber) async {
-    final cars = (_currentUser!.cars ?? []).map((car) {
-      return car.copyWith(isDefault: car.carNumber == carNumber);
-    }).toList();
-
-    _currentUser = _currentUser!.copyWith(cars: cars);
-    await _dataSource.updateUser(_currentUser!);
+    Log.s('[UserRepository] 최종 상태 - notificationsEnabled: $enabled, fcmToken: $newFcmToken');
   }
 }

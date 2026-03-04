@@ -3,64 +3,70 @@ import 'package:daeja/features/user/data/datasource/remote/user_remote_datasourc
 
 import '../../../../../core/utils/logger.dart';
 import '../../../../auth/domain/models/auth_user.dart';
-import '../../../domain/models/user.dart';
+import '../../entities/user_entity.dart';
 
 class UserRemoteDatasourceFirebase extends UserRemoteDataSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collection = 'users';
 
   @override
-  Future<User> createUser(AuthUser authUser) async {
+  Future<UserEntity> createUser(AuthUser authUser) async {
     try {
       final userDoc = _firestore.collection(_collection).doc(authUser.uid);
-
-      // 이미 존재하는 경우
       final docSnapshot = await userDoc.get();
+
       if (docSnapshot.exists) {
-        Log.d('유저가 이미 존재합니다: ${authUser.uid}');
-        return User.fromJson(docSnapshot.data()!);
+        final existingData = docSnapshot.data();
+
+        if (existingData == null) {
+          throw Exception('문서 데이터가 null입니다');
+        }
+
+        return UserEntity.fromJson(existingData);
       }
 
-      final newUser = User(
+      // Create new user
+      final newUser = UserEntity(
         uid: authUser.uid,
-        phoneNumber: authUser.phoneNumber ?? '',
-        createdAt: DateTime.now(),
+        phone: authUser.phoneNumber ?? '',
+        createdAt: DateTime.now().toIso8601String(),
       );
 
       await userDoc.set(newUser.toJson());
-      Log.d('유저를 생성했습니다: ${authUser.uid}');
+      Log.s('새 유저 생성: ${authUser.uid}');
+
       return newUser;
-    } catch (e) {
-      Log.e('유저 생성에 실패했습니다: $e');
+    } catch (e, stackTrace) {
+      Log.e('유저 생성 실패', e);
+      Log.e('StackTrace: $stackTrace');
       rethrow;
     }
   }
 
   @override
-  Future<User?> getUser(String uid) async {
+  Future<UserEntity?> getUser(String uid) async {
     try {
       final doc = await _firestore.collection(_collection).doc(uid).get();
 
-      // 유저 없을 시 null 반환
       if (!doc.exists) return null;
 
-      return User.fromJson(doc.data()!);
+      return UserEntity.fromJson(doc.data()!);
     } catch (e) {
-      Log.e('유저 반환에 실패했습니다: $e');
+      Log.e('유저 조회 실패', e);
       return null;
     }
   }
 
   @override
-  Future<void> updateUser(User user) async {
+  Future<void> updateUser(UserEntity user) async {
     try {
       await _firestore
           .collection(_collection)
           .doc(user.uid)
           .update(user.toJson());
-      Log.d('유저 정보를 업데이트 했습니다: ${user.uid}');
-    } catch (e) {
-      Log.e('유저 정보 업데이트에 실패했습니다: $e');
+    } catch (e, stackTrace) {
+      Log.e('유저 업데이트 실패', e);
+      Log.e('StackTrace: $stackTrace');
       rethrow;
     }
   }
@@ -69,9 +75,8 @@ class UserRemoteDatasourceFirebase extends UserRemoteDataSource {
   Future<void> deleteUser(String uid) async {
     try {
       await _firestore.collection(_collection).doc(uid).delete();
-      Log.d('유저를 삭제했습니다: $uid');
     } catch (e) {
-      Log.e('유저 삭제에 실패했습니다: $e');
+      Log.e('유저 삭제 실패', e);
       rethrow;
     }
   }

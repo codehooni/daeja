@@ -1,53 +1,61 @@
-class Car {
+enum VehicleType { sedan, suv, van, motorcycle, other }
+
+class Vehicle {
   final String id;
-  final String carNumber;
+  final String plateNumber;
   final String? manufacturer;
   final String? model;
   final String? color;
-  final bool isDefault;
+  final String? nickName;
+  final VehicleType type;
 
-  const Car({
+  const Vehicle({
     required this.id,
-    required this.carNumber,
+    required this.plateNumber,
     this.manufacturer,
     this.model,
     this.color,
-    this.isDefault = false,
+    this.nickName,
+    required this.type,
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'carNumber': carNumber,
-        'manufacturer': manufacturer,
-        'model': model,
-        'color': color,
-        'isDefault': isDefault,
-      };
+    'id': id,
+    'plateNumber': plateNumber,
+    'manufacturer': manufacturer,
+    'model': model,
+    'color': color,
+    'nickName': nickName,
+    'type': type.name,
+  };
 
-  factory Car.fromJson(Map<String, dynamic> json) => Car(
-        id: json['id'],
-        carNumber: json['carNumber'],
-        manufacturer: json['manufacturer'],
-        model: json['model'],
-        color: json['color'],
-        isDefault: json['isDefault'] ?? false,
-      );
+  factory Vehicle.fromJson(Map<String, dynamic> json) => Vehicle(
+    id: json['id'],
+    plateNumber: json['plateNumber'],
+    manufacturer: json['manufacturer'],
+    model: json['model'],
+    color: json['color'],
+    nickName: json['nickName'],
+    type: VehicleType.values.byName(json['type']),
+  );
 
-  Car copyWith({
+  Vehicle copyWith({
     String? id,
-    String? carNumber,
+    String? plateNumber,
     String? manufacturer,
     String? model,
     String? color,
-    bool? isDefault,
+    String? nickName,
+    VehicleType? type,
   }) {
-    return Car(
+    return Vehicle(
       id: id ?? this.id,
-      carNumber: carNumber ?? this.carNumber,
+      plateNumber: plateNumber ?? this.plateNumber,
       manufacturer: manufacturer ?? this.manufacturer,
       model: model ?? this.model,
       color: color ?? this.color,
-      isDefault: isDefault ?? this.isDefault,
+      nickName: nickName ?? this.nickName,
+      type: type ?? this.type,
     );
   }
 }

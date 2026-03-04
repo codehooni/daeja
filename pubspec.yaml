@@ -1,41 +1,15 @@
 name: daeja
 description: "제주도 주차장 정보를 실시간으로 확인할 수 있는 앱"
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
-version: 1.1.8+24
+version: 1.2.3+34
 
 environment:
   sdk: ^3.8.1
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-
-  # 위치 권한 및 현재 위치 추적
   geolocator: ^14.0.2
 
   # 상태 관리 - Riverpod (전역 상태 관리)
@@ -44,42 +18,34 @@ dependencies:
   # 로컬 데이터베이스 - Hive (설정 저장용)
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  # 환경 변수 관리
+  flutter_dotenv: ^6.0.0
 
   # 네이버 지도 SDK
-  flutter_naver_map: ^1.4.1+1
-
-  # URL 실행 - 이메일 앱 열기
-  url_launcher: ^6.3.1
-
-  # HTTP 요청 - 제주 API 호출
-  http: ^1.2.2
+  flutter_naver_map: ^1.4.4
 
   # 네트워크 요청 - dio
   dio: ^5.9.0
 
-  # 공유 기능
-  share_plus: ^12.0.0
-
-  # 앱 아이콘 생성 도구
-  flutter_launcher_icons: ^0.14.4
-
-  # 환경 변수 관리
-  flutter_dotenv: ^6.0.0
-
   # 외부 지도 앱 실행
   map_launcher: ^4.4.2
 
-  # SVG 이미지 렌더링
-  flutter_svg: ^2.0.16
-
-  # 시간 형식
-  intl: ^0.20.2
+  # firebase
   firebase_core: ^4.2.1
   cloud_firestore: ^6.1.0
-
-  # go-router
-  go_router: ^17.0.0
   firebase_auth: ^6.1.2
+  firebase_messaging: ^16.1.0
+  flutter_local_notifications: ^19.5.0
+
+  # UTIL
+  velocity_x: ^4.3.1
+  flutter_animate: ^4.5.2
+  intl: ^0.20.2
+  intl_phone_number_input: ^0.7.5
+  webview_flutter: ^4.13.1
+  url_launcher:
+  flutter_svg: ^2.2.3
+  speech_to_text: ^7.0.0
 
 
 flutter_launcher_icons:
@@ -101,6 +67,9 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+  # 앱 아이콘 생성 도구
+  flutter_launcher_icons: ^0.14.4
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -117,6 +86,7 @@ flutter:
     - .env
     - assets/images/
     - assets/icons/
+    - assets/terms/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

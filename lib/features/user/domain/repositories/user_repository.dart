@@ -1,5 +1,5 @@
 import '../../../auth/domain/models/auth_user.dart';
-import '../models/car.dart';
+import '../models/vehicle.dart';
 import '../models/user.dart';
 
 /// 여기서는 유저의 정보를 관리한다.
@@ -12,9 +12,9 @@ abstract class UserRepository {
 
   Future<void> deleteUser();
 
-  Future<void> addCar(Car car);
+  Future<void> addVehicle(Vehicle vehicle);
 
-  Future<void> removeCar(String carNumber);
+  Future<void> removeVehicle(String vehicleNumber);
 
-  Future<void> setDefaultCar(String carNumber);
+  Future<void> updateNotificationSettings(bool enabled);
 }

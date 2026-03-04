@@ -31,6 +31,8 @@ class ParkingMapper {
       lng: info.xCrdn,
       totalSpots: info.wholNpls,
       availableSpots: status?.gnrl ?? 0,
+      type: ParkingLotType.public,
+      reservationInfo: null, // 공공 API에는 예약 안내 정보 없음
     );
   }
 
@@ -52,6 +54,8 @@ class ParkingMapper {
       lng: airportConstant.lng,
       totalSpots: airport.parkingFullSpace,
       availableSpots: airport.parkingFullSpace - airport.parkingIstay,
+      type: ParkingLotType.public,
+      reservationInfo: null, // 공공 API에는 예약 안내 정보 없음
     );
   }
 
@@ -64,14 +68,32 @@ class ParkingMapper {
 
   // 민영 주차장 개별
   static ParkingLot _fromFirebase(PrivateParkingEntity parking) {
+    // parkingSpots 리스트의 길이로 전체 면수 계산
+    final totalSpots = parking.parkingSpots.length;
+
+    // parking_spots에서 'available' 상태인 것들만 카운트
+    final availableSpots = parking.parkingSpots
+        .where((spot) => spot.status == 'available')
+        .length;
+
+    // isValetSupported에 따라 타입 결정
+    final type = parking.isValetSupported
+        ? ParkingLotType.valet
+        : ParkingLotType.private;
+
     return ParkingLot(
       id: parking.id,
       name: parking.name,
-      address: parking.addr,
-      lat: parking.yCrdn,
-      lng: parking.xCrdn,
-      totalSpots: parking.wholNpls!,
-      availableSpots: parking.gnrl!,
+      address: parking.address,
+      lat: parking.lat,
+      lng: parking.lon,
+      totalSpots: totalSpots,
+      availableSpots: availableSpots,
+      type: type,
+      basePrice: parking.basePrice,
+      unitTime: parking.unitTime,
+      unitPrice: parking.unitPrice,
+      reservationInfo: parking.reservationInfo, // 민영 주차장의 예약 안내 정보
     );
   }
 

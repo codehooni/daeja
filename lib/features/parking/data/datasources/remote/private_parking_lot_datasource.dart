@@ -11,9 +11,14 @@ class PrivateParkingLotDatasource {
     try {
       Log.api('민영 주차장 데이터 요청 시작');
 
-      final snapshot = await firestore.collection('parkingLots').get();
+      final snapshot = await firestore.collection('parking_lots').get();
 
-      final results = snapshot.docs.map((doc) => doc.data()).toList();
+      final results = snapshot.docs.map((doc) {
+        final data = doc.data();
+        // document ID를 데이터에 포함
+        data['id'] = doc.id;
+        return data;
+      }).toList();
 
       Log.s('Firebase 민영 주차장 ${results.length}개 로드 완료');
 

@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/datasource/remote/reservation_datasource_firebase.dart';
-import '../../../data/datasource/reservation_datasource.dart';
+import '../../../data/datasource/remote/user_reservation_datasource_firebase.dart';
+import '../../../data/datasource/user_reservation_datasource.dart';
 
-/// Reservation Datasource Provider
-final reservationDatasourceProvider = Provider<ReservationDatasource>((ref) {
-  return ReservationDatasourceFirebase();
+/// User Reservation Datasource Provider
+final userReservationDatasourceProvider = Provider<UserReservationDatasource>((ref) {
+  return UserReservationDatasourceFirebase();
 });

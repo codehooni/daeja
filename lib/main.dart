@@ -1,11 +1,5 @@
-import 'package:daeja/past/feature/settings/provider/theme_provider.dart';
-import 'package:daeja/past/feature/user_location/provider/user_location_provider.dart';
-import 'package:daeja/past/presentation/screen/main_screen.dart';
-import 'package:daeja/past/presentation/theme/dark_mode.dart';
-import 'package:daeja/past/presentation/theme/light_mode.dart';
-import 'package:daeja/screens/parking_map_screen.dart';
-import 'package:daeja/screens/parking_test_screen.dart';
-import 'package:daeja/screens/test_screen.dart';
+import 'package:daeja/core/utils/firebase_message.dart';
+import 'package:daeja/daeja_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -13,115 +7,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'features/parking/presentation/providers/parking_providers.dart';
-import 'features/user/presentation/providers/user_provider.dart';
 import 'firebase_options.dart';
-
-late Size mq;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase 초기화 (for private parking lots)
+  // Firebase 초기화 (Firebase Messaging이 의존하므로 먼저 실행)
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // HIVE SETTINGS (for settings)
-  await Hive.initFlutter();
+  // Firebase Messaging 초기화 (Firebase 초기화 완료 후 실행)
+  await FirebaseMessage().initNotifications();
 
-  await Hive.openBox('settings');
+  // 독립적인 작업들을 병렬로 실행하여 초기화 속도 향상
+  await Future.wait([
+    _initHive(),
+    dotenv.load(fileName: '.env'),
+  ]);
 
-  // LOAD KEYS
-  await dotenv.load(fileName: '.env');
-
+  // Naver Map은 .env 로드 후 실행 (dotenv.env 사용)
   await FlutterNaverMap().init(
     clientId: dotenv.env['NAVER_MAP_CLIENT_ID'] ?? '',
   );
 
-  runApp(const ProviderScope(child: DataTestApp()));
+  runApp(const ProviderScope(child: DaejaApp()));
 }
 
-class DataTestApp extends ConsumerStatefulWidget {
-  const DataTestApp({super.key});
-
-  @override
-  ConsumerState<DataTestApp> createState() => _MyAState();
-}
-
-class _MyAState extends ConsumerState<DataTestApp>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('API 테스트'),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(icon: Icon(Icons.person), text: 'Auth & User'),
-              Tab(icon: Icon(Icons.local_parking), text: 'Parking List'),
-              Tab(icon: Icon(Icons.map), text: 'Parking Map'),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                if (_tabController.index == 0) {
-                  // Auth & User 탭: User 새로고침
-                  ref.read(userProvider.notifier).refresh();
-                } else if (_tabController.index == 1 ||
-                    _tabController.index == 2) {
-                  // Parking List/Map 탭: Parking 새로고침
-                  ref.invalidate(parkingLotsProvider);
-                }
-              },
-            ),
-          ],
-        ),
-        body: TabBarView(
-          controller: _tabController,
-          physics: const NeverScrollableScrollPhysics(),
-          children: const [
-            TestScreen(),
-            ParkingTestScreen(),
-            ParkingMapScreen(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    mq = MediaQuery.of(context).size;
-    final themeMode = ref.watch(themeProvider);
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: lightMode,
-      darkTheme: darkMode,
-      themeMode: themeMode,
-      home: const MainScreen(),
-    );
-  }
+/// Hive 초기화 및 Box 열기를 병렬로 처리
+Future<void> _initHive() async {
+  await Hive.initFlutter();
+  await Future.wait([
+    Hive.openBox('settings'),
+    Hive.openBox<String>('search_history'),
+  ]);
 }

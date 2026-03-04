@@ -1,21 +1,22 @@
-import '../../../qr_code/data/entities/qr_code.dart';
-
 class Reservation {
   final String id;
 
   // visitor
   final String visitorId;
   final String visitorVehicleId;
+  final String? visitorVehiclePlate;
 
   // parking lot
   final String parkingLotId;
+  final String? parkingLotName;
+  final double? parkingLotLat;
+  final double? parkingLotLng;
 
   // expected time
   final String expectedArrival;
   final String? expectedExit;
 
   final String status;
-  final QrCode qrCode;
   final String createdAt;
 
   final String? notes;
@@ -23,6 +24,9 @@ class Reservation {
   /// admin area
   final String? assignedSpotId;
   final String? handledByStaffId;
+  final String? handledByStaffName;
+  final String? handledByStaffPhone;
+  final String? profileImageUrl;
   final String? actualArrival;
   final String? actualExit;
 
@@ -32,15 +36,21 @@ class Reservation {
     required this.id,
     required this.visitorId,
     required this.visitorVehicleId,
+    this.visitorVehiclePlate,
     required this.parkingLotId,
+    this.parkingLotName,
+    this.parkingLotLat,
+    this.parkingLotLng,
     required this.expectedArrival,
     this.expectedExit,
     required this.status,
-    required this.qrCode,
     required this.createdAt,
     this.notes,
     this.assignedSpotId,
     this.handledByStaffId,
+    this.handledByStaffName,
+    this.handledByStaffPhone,
+    this.profileImageUrl,
     this.actualArrival,
     this.actualExit,
     this.logs,
@@ -49,38 +59,50 @@ class Reservation {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'visitor_id': visitorId,
-      'visitor_vehicle_id': visitorVehicleId,
-      'parking_lot_id': parkingLotId,
-      'expected_arrival': expectedArrival,
-      'expected_exit': expectedExit,
+      'visitorId': visitorId,
+      'visitorVehicleId': visitorVehicleId,
+      'visitorVehiclePlate': visitorVehiclePlate,
+      'parkingLotId': parkingLotId,
+      'parkingLotName': parkingLotName,
+      'parkingLotLat': parkingLotLat,
+      'parkingLotLng': parkingLotLng,
+      'expectedArrival': expectedArrival,
+      'expectedExit': expectedExit,
       'status': status,
-      'qr_code': qrCode.toJson(),
-      'created_at': createdAt,
+      'createdAt': createdAt,
       'notes': notes,
-      'assigned_spot_id': assignedSpotId,
-      'handled_by_staff_id': handledByStaffId,
-      'actual_arrival': actualArrival,
-      'actual_exit': actualExit,
+      'assignedSpotId': assignedSpotId,
+      'handledByStaffId': handledByStaffId,
+      'handledByStaffName': handledByStaffName,
+      'handledByStaffPhone': handledByStaffPhone,
+      'profileImageUrl': profileImageUrl,
+      'actualArrival': actualArrival,
+      'actualExit': actualExit,
       'logs': logs,
     };
   }
 
   factory Reservation.fromJson(Map<String, dynamic> json) => Reservation(
     id: json['id'] as String,
-    visitorId: json['visitor_id'] as String,
-    visitorVehicleId: json['visitor_vehicle_id'] as String,
-    parkingLotId: json['parking_lot_id'] as String,
-    expectedArrival: json['expected_arrival'] as String,
-    expectedExit: json['expected_exit'] as String?,
+    visitorId: json['visitorId'] as String,
+    visitorVehicleId: json['visitorVehicleId'] as String,
+    visitorVehiclePlate: json['visitorVehiclePlate'] as String?,
+    parkingLotId: json['parkingLotId'] as String,
+    parkingLotName: json['parkingLotName'] as String?,
+    parkingLotLat: json['parkingLotLat'] as double?,
+    parkingLotLng: json['parkingLotLng'] as double?,
+    expectedArrival: json['expectedArrival'] as String,
+    expectedExit: json['expectedExit'] as String?,
     status: json['status'] as String,
-    qrCode: QrCode.fromJson(json['qr_code'] as Map<String, dynamic>),
-    createdAt: json['created_at'] as String,
+    createdAt: json['createdAt'] as String,
     notes: json['notes'] as String?,
-    assignedSpotId: json['assigned_spot_id'] as String?,
-    handledByStaffId: json['handled_by_staff_id'] as String?,
-    actualArrival: json['actual_arrival'] as String?,
-    actualExit: json['actual_exit'] as String?,
+    assignedSpotId: json['assignedSpotId'] as String?,
+    handledByStaffId: json['handledByStaffId'] as String?,
+    handledByStaffName: json['handledByStaffName'] as String?,
+    handledByStaffPhone: json['handledByStaffPhone'] as String?,
+    profileImageUrl: json['profileImageUrl'] as String?,
+    actualArrival: json['actualArrival'] as String?,
+    actualExit: json['actualExit'] as String?,
     logs: json['logs'] as String?,
   );
 }

@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "reservations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "visitorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

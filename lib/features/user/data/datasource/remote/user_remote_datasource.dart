@@ -1,12 +1,12 @@
 import '../../../../auth/domain/models/auth_user.dart';
-import '../../../domain/models/user.dart';
+import '../../entities/user_entity.dart';
 
 abstract class UserRemoteDataSource {
-  Future<User> createUser(AuthUser authUser);
+  Future<UserEntity> createUser(AuthUser authUser);
 
-  Future<User?> getUser(String uid);
+  Future<UserEntity?> getUser(String uid);
 
-  Future<void> updateUser(User user);
+  Future<void> updateUser(UserEntity user);
 
   Future<void> deleteUser(String uid);
 }

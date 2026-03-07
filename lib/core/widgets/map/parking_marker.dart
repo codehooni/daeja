@@ -1,40 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 class ParkingMarkerWidget extends StatelessWidget {
   final int availableSpots;
   final Color backgroundColor;
   final Color borderColor;
   final double borderWidth;
+  final bool isValet;
 
   const ParkingMarkerWidget({
     super.key,
     required this.availableSpots,
     required this.backgroundColor,
     required this.borderColor,
-    this.borderWidth = 3.0,
+    required this.borderWidth,
+    required this.isValet,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 55,
-      height: 55,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        shape: BoxShape.circle,
-        border: Border.all(color: borderColor, width: borderWidth),
-      ),
-      child: Center(
-        child: Text(
-          availableSpots.toString(),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 13.0,
-            color: Colors.white,
-          ),
-        ),
-      ),
+    return Padding(
+      padding: isValet ? const EdgeInsets.all(4.0) : const EdgeInsets.all(0),
+      child:
+          HStack([
+                (isValet ? 'V' : 'P').text.size(13).white.bold.make(),
+                4.widthBox,
+                '$availableSpots'.text.size(12).white.semiBold.make(),
+              ])
+              .centered()
+              .py4()
+              .px12()
+              .box
+              .roundedLg
+              .color(backgroundColor)
+              .withShadow([
+                ?isValet
+                    ? BoxShadow(
+                        color: backgroundColor.withOpacity(0.8),
+                        blurRadius: 4.0,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 0),
+                      )
+                    : null,
+              ])
+              .border(color: borderColor, width: borderWidth)
+              .make(),
     );
   }
 
@@ -44,7 +55,8 @@ class ParkingMarkerWidget extends StatelessWidget {
     required int availableSpots,
     required Color backgroundColor,
     required Color borderColor,
-    double borderWidth = 3.0,
+    double borderWidth = 2.0,
+    required bool isValet,
   }) async {
     return NOverlayImage.fromWidget(
       context: context,
@@ -53,8 +65,8 @@ class ParkingMarkerWidget extends StatelessWidget {
         backgroundColor: backgroundColor,
         borderColor: borderColor,
         borderWidth: borderWidth,
+        isValet: isValet,
       ),
-      size: const Size(40.0, 40.0),
     );
   }
 }

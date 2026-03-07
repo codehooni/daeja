@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
 
+import '../../../../core/utils/dialogs.dart';
+import '../../../../core/utils/logger.dart';
 import '../../../../core/utils/phone_number_utils.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../parking/presentation/providers/parking_providers.dart';
@@ -133,7 +135,7 @@ class _ReservationDetailScreenState
         };
       case ReservationStatus.exitRequested:
         return {
-          'title': '입차가 완료되었습니다',
+          'title': '출차 요청됨',
           'subtitle': '사장님께서 확인 후 출차 시간이 확정됩니다.',
           'icon': Icons.local_parking_outlined,
           'colorFrom': Vx.green500,
@@ -723,22 +725,32 @@ class _ReservationDetailScreenState
 
         if (confirmed == true && mounted) {
           try {
+            // 로딩 표시
+            Dialogs.showProgressBar(context);
+
             final controller = ref.read(userReservationControllerProvider);
             final currentUser = ref.read(currentAuthUserProvider);
+
             if (currentUser != null) {
               await controller.requestExit(
                 reservation.id,
                 currentUser.uid,
                 selectedDateTime,
               );
+
+              // 로딩 닫기 및 성공 피드백
               if (mounted) {
+                Navigator.of(context).pop(); // Progress bar 닫기
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('출차 요청이 접수되었습니다')),
                 );
               }
+            } else {
+              if (mounted) Navigator.of(context).pop(); // Progress bar 닫기
             }
           } catch (e) {
             if (mounted) {
+              Navigator.of(context).pop(); // Progress bar 닫기
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('출차 요청 실패: $e')),
               );

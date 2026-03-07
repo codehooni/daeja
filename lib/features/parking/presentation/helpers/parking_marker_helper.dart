@@ -6,8 +6,8 @@ import '../../domain/models/parking_lot.dart';
 
 class ParkingMarkerHelper {
   // 발렛 주차장 상수
-  static const Color valetBorderColor = Color(0xFFFFD700); // 골드
-  static const double valetBorderWidth = 2.5;
+  static const Color valetBorderColor = Color(0xFF4F4C95); // 골드
+  static const double valetBorderWidth = 2.0;
 
   /// 단일 마커 생성
   static Future<NMarker> createMarker({
@@ -67,9 +67,7 @@ class ParkingMarkerHelper {
   }
 
   /// 모든 마커 제거 - 리스트만 클리어 (API 호출 안함)
-  static void clearMarkers({
-    required List<NMarker> markers,
-  }) {
+  static void clearMarkers({required List<NMarker> markers}) {
     // deleteOverlay 호출하지 않음 (Naver Map이 dispose 시 자동으로 정리)
     markers.clear();
   }
@@ -84,11 +82,11 @@ class ParkingMarkerHelper {
     // 색상 결정: 절대 개수 기준
     Color backgroundColor;
     if (availableSpots == 0) {
-      backgroundColor = Colors.red; // 만차
+      backgroundColor = Color(0xFFD96C68); // 만차
     } else if (availableSpots <= 5) {
-      backgroundColor = Colors.orange; // 거의 만차
+      backgroundColor = Color(0xFFEBB252); // 거의 만차
     } else {
-      backgroundColor = Colors.green; // 여유
+      backgroundColor = Color(0xFF4A997B); // 여유
     }
 
     // 테마에 따른 색상 조정
@@ -102,8 +100,9 @@ class ParkingMarkerHelper {
     final isValet = parkingType == ParkingLotType.valet;
     final borderColor = isValet
         ? valetBorderColor
-        : (isDarkMode ? Colors.grey[300]! : Colors.white);
-    final borderWidth = isValet ? valetBorderWidth : 3.0;
+        : (isDarkMode ? Colors.grey[300]! : Colors.black54);
+    final borderWidth = isValet ? valetBorderWidth : 1.5;
+    if (isValet) backgroundColor = Color(0xFF7779EC);
 
     return ParkingMarkerWidget.createIcon(
       context: context,
@@ -111,6 +110,7 @@ class ParkingMarkerHelper {
       backgroundColor: backgroundColor,
       borderColor: borderColor,
       borderWidth: borderWidth,
+      isValet: isValet,
     );
   }
 }

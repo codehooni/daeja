@@ -190,7 +190,7 @@ class UserReservationDatasourceFirebase implements UserReservationDatasource {
 
       await _firestore.collection(_collection).doc(reservationId).update({
         'status': 'exitRequested',
-        'expectedExit': expectedExitTime,
+        'expectedExit': expectedExitTime,  // DateTime 객체로 저장 (Firestore가 Timestamp로 변환)
         'updatedAt': FieldValue.serverTimestamp(),
       });
 

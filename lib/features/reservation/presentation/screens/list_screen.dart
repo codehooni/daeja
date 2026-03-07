@@ -758,41 +758,44 @@ class _ListScreenState extends ConsumerState<ListScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            title: '출차 요청'.text.size(18).bold.make(),
-            content: VStack([
-              '출차를 요청하시겠습니까?'.text.size(15).make(),
-              16.heightBox,
-              VStack([
-                '출차 예정 시간'.text.size(13).color(Colors.grey.shade600).make(),
-                4.heightBox,
-                _formatDateTime(selectedDateTime.toIso8601String())
-                    .text
-                    .size(16)
-                    .bold
-                    .color(Vx.purple700)
+            title: const Text('출차 요청', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: VStack([
+                '출차를 요청하시겠습니까?'.text.size(15).make(),
+                16.heightBox,
+                VStack([
+                  '출차 예정 시간'.text.size(13).color(Colors.grey.shade600).make(),
+                  4.heightBox,
+                  _formatDateTime(selectedDateTime.toIso8601String())
+                      .text
+                      .size(16)
+                      .bold
+                      .color(Vx.purple700)
+                      .make(),
+                ])
+                    .p12()
+                    .box
+                    .roundedSM
+                    .color(Vx.purple50)
                     .make(),
-              ])
-                  .p12()
-                  .box
-                  .roundedSM
-                  .color(Vx.purple50)
-                  .make(),
-              16.heightBox,
-              '기사님께서 승인 후 출차 시간이 확정됩니다.'
-                  .text
-                  .size(13)
-                  .color(Colors.grey.shade600)
-                  .center
-                  .make(),
-            ]),
+                16.heightBox,
+                '기사님께서 승인 후 출차 시간이 확정됩니다.'
+                    .text
+                    .size(13)
+                    .color(Colors.grey.shade600)
+                    .center
+                    .make(),
+              ]),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: '취소'.text.size(15).color(Colors.grey.shade600).make(),
+                child: Text('취소', style: TextStyle(fontSize: 15, color: Colors.grey.shade600)),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: '출차 요청'.text.size(15).color(Vx.purple700).bold.make(),
+                child: const Text('출차 요청', style: TextStyle(fontSize: 15, color: Colors.purple, fontWeight: FontWeight.bold)),
               ),
             ],
           ),

@@ -6,7 +6,7 @@ import '../../domain/models/parking_lot.dart';
 
 class ParkingMarkerHelper {
   // 발렛 주차장 상수
-  static const Color valetBorderColor = Color(0xFF4F4C95); // 골드
+  static const Color valetBorderColor = Color(0xFF4F4C95);
   static const double valetBorderWidth = 2.0;
 
   /// 단일 마커 생성
@@ -21,6 +21,7 @@ class ParkingMarkerHelper {
       availableSpots: parkingLot.availableSpots,
       parkingType: parkingLot.type,
       isDarkMode: isDarkMode,
+      name: parkingLot.name,
     );
 
     final marker = NMarker(
@@ -78,6 +79,7 @@ class ParkingMarkerHelper {
     required int availableSpots,
     required ParkingLotType parkingType,
     required bool isDarkMode,
+    required String name,
   }) async {
     // 색상 결정: 절대 개수 기준
     Color backgroundColor;
@@ -111,6 +113,7 @@ class ParkingMarkerHelper {
       borderColor: borderColor,
       borderWidth: borderWidth,
       isValet: isValet,
+      name: name,
     );
   }
 }

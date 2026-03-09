@@ -9,6 +9,8 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
 
+import '../features/parking/presentation/widgets/parking_bottom_sheet_factory.dart';
+
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
@@ -23,9 +25,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   void dispose() {
-    _isMapReady = false;  // 먼저 플래그 설정
-    _mapController = null;  // 컨트롤러 무효화
-    _markers.clear();  // 마커 리스트만 클리어 (삭제 API 호출 안함)
+    _isMapReady = false; // 먼저 플래그 설정
+    _mapController = null; // 컨트롤러 무효화
+    _markers.clear(); // 마커 리스트만 클리어 (삭제 API 호출 안함)
     super.dispose();
   }
 
@@ -96,9 +98,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     debugPrint('🎯 마커 클릭: ${parkingLot.name}');
 
     // 바텀 시트 표시
-    ParkingDetailBottomSheet.show(context, parkingLot);
+    ParkingBottomSheetFactory.show(context, parkingLot);
   }
-
 
   /// 위치 오버레이 설정 및 현재 위치 표시
   Future<void> _setupLocationOverlay() async {
@@ -118,7 +119,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           debugPrint('📍 사용자 위치: ${userLocation.lat}, ${userLocation.lng}');
 
           // LocationOverlay 위치 설정
-          locationOverlay.setPosition(NLatLng(userLocation.lat, userLocation.lng));
+          locationOverlay.setPosition(
+            NLatLng(userLocation.lat, userLocation.lng),
+          );
 
           // LocationOverlay 표시
           locationOverlay.setIsVisible(true);
@@ -190,10 +193,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                    ),
+                    BoxShadow(color: Colors.black26, blurRadius: 4),
                   ],
                 ),
                 child: Row(

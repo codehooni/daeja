@@ -11,10 +11,12 @@ class ParkingLot {
   final ParkingLotType type;
   final int? fee;
   final double? distance;
+  final String? accountNumber;
+  final String? tel;
 
   // 요금 정보
   final int? basePrice; // 기본 요금
-  final int? unitTime;  // 단위 시간 (분)
+  final int? unitTime; // 단위 시간 (분)
   final int? unitPrice; // 단위 요금
 
   // 예약 안내 정보 (발렛 서비스 관련)
@@ -35,6 +37,8 @@ class ParkingLot {
     this.unitTime,
     this.unitPrice,
     this.reservationInfo,
+    this.accountNumber,
+    this.tel,
   });
 
   // 거리 정보 추가한 새 객체 반환
@@ -54,6 +58,8 @@ class ParkingLot {
       unitTime: unitTime,
       unitPrice: unitPrice,
       reservationInfo: reservationInfo ?? this.reservationInfo,
+      accountNumber: accountNumber,
+      tel: tel,
     );
   }
 
@@ -66,12 +72,17 @@ class ParkingLot {
       return fee;
     }
 
-    if (exitTime.isBefore(arrivalTime) || exitTime.isAtSameMomentAs(arrivalTime)) {
+    if (exitTime.isBefore(arrivalTime) ||
+        exitTime.isAtSameMomentAs(arrivalTime)) {
       return 0;
     }
 
     // 입차 날짜와 출차 날짜의 차이 계산 (날짜만 비교)
-    final arrivalDate = DateTime(arrivalTime.year, arrivalTime.month, arrivalTime.day);
+    final arrivalDate = DateTime(
+      arrivalTime.year,
+      arrivalTime.month,
+      arrivalTime.day,
+    );
     final exitDate = DateTime(exitTime.year, exitTime.month, exitTime.day);
 
     // 날짜 차이 + 1 = 실제 사용 일수
@@ -87,8 +98,8 @@ class ParkingLot {
     return totalFee;
   }
 
-  /// 주차 시간 기반 요금 계산 (기존 시간 단위 계산)
-  /// [parkingMinutes] 주차 시간(분)
+  // 주차 시간 기반 요금 계산 (기존 시간 단위 계산)
+  // [parkingMinutes] 주차 시간(분)
   int? calculateFee(int parkingMinutes) {
     if (basePrice == null || unitTime == null || unitPrice == null) {
       return fee; // 요금 정보가 없으면 기본 fee 반환

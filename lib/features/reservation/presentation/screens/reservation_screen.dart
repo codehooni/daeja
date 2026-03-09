@@ -1,3 +1,4 @@
+import 'package:daeja/features/reservation/presentation/screens/reservation_complete_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -329,19 +330,23 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
               if (widget.parkingLot.reservationInfo != null &&
                   widget.parkingLot.reservationInfo!.isNotEmpty) ...[
                 VStack([
-                  HStack([
-                    Icon(Icons.info_outline, size: 22, color: Vx.purple500),
-                    8.widthBox,
-                    '예약 안내'.text.size(16).bold.make(),
-                  ]),
-                  12.heightBox,
-                  widget.parkingLot.reservationInfo!.text
-                    .size(14)
-                    .color(Colors.grey.shade700)
+                      HStack([
+                        Icon(Icons.info_outline, size: 22, color: Vx.purple500),
+                        8.widthBox,
+                        '예약 안내'.text.size(16).bold.make(),
+                      ]),
+                      12.heightBox,
+                      widget.parkingLot.reservationInfo!.text
+                          .size(14)
+                          .color(Colors.grey.shade700)
+                          .make(),
+                    ])
+                    .p16()
+                    .box
+                    .rounded
+                    .color(const Color(0xFFF3E5FF))
+                    .border(color: const Color(0xFFE1BEF5))
                     .make(),
-                ]).p16().box.rounded.color(const Color(0xFFF3E5FF))
-                  .border(color: const Color(0xFFE1BEF5))
-                  .make(),
                 16.heightBox,
               ],
 
@@ -546,80 +551,91 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
               alignment: AlignmentGeometry.bottomCenter,
               child:
                   VStack([
-                    // 예상 결제금액 - 출차 예정 시간이 설정된 경우에만 표시
-                    if (selectedExitTime != null && _calculateEstimatedFee() != null) ...[
-                      VStack([
-                        HStack([
-                          (widget.parkingLot.type == ParkingLotType.valet
-                            ? '예상 발렛 + 주차 결제금액'
-                            : '예상 결제금액').text
-                              .size(14)
-                              .color(Colors.grey.shade700)
-                              .make(),
-                          Spacer(),
-                          '${_calculateEstimatedFee()!.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원'
-                              .text.size(20).purple500.bold.make(),
-                        ]),
-                        4.heightBox,
-                        HStack([
-                          (widget.parkingLot.type == ParkingLotType.valet
-                            ? '주차 일수: ${_calculateParkingDays()}일'
-                            : '주차 시간: ${_formatDuration(_calculateParkingMinutes()!)}')
-                              .text
-                              .size(12)
-                              .color(Colors.grey.shade600)
-                              .make(),
-                          Spacer(),
-                        ]),
-                        if (widget.parkingLot.type == ParkingLotType.valet) ...[
-                          4.heightBox,
-                          '※ 세차나 기타 상품 이용시 추가요금이 발생합니다'
-                              .text
-                              .size(11)
-                              .color(Colors.orange.shade700)
-                              .make(),
+                        // 예상 결제금액 - 출차 예정 시간이 설정된 경우에만 표시
+                        if (selectedExitTime != null &&
+                            _calculateEstimatedFee() != null) ...[
+                          VStack([
+                            HStack([
+                              (widget.parkingLot.type == ParkingLotType.valet
+                                      ? '예상 발렛 + 주차 결제금액'
+                                      : '예상 결제금액')
+                                  .text
+                                  .size(14)
+                                  .color(Colors.grey.shade700)
+                                  .make(),
+                              Spacer(),
+                              '${_calculateEstimatedFee()!.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원'
+                                  .text
+                                  .size(20)
+                                  .purple500
+                                  .bold
+                                  .make(),
+                            ]),
+                            4.heightBox,
+                            HStack([
+                              (widget.parkingLot.type == ParkingLotType.valet
+                                      ? '주차 일수: ${_calculateParkingDays()}일'
+                                      : '주차 시간: ${_formatDuration(_calculateParkingMinutes()!)}')
+                                  .text
+                                  .size(12)
+                                  .color(Colors.grey.shade600)
+                                  .make(),
+                              Spacer(),
+                            ]),
+                            if (widget.parkingLot.type ==
+                                ParkingLotType.valet) ...[
+                              4.heightBox,
+                              '※ 세차나 기타 상품 이용시 추가요금이 발생합니다'.text
+                                  .size(11)
+                                  .color(Colors.orange.shade700)
+                                  .make(),
+                            ],
+                          ]),
+                          8.heightBox,
                         ],
-                      ]),
-                      8.heightBox,
-                    ],
 
-                    (isSubmitting
-                            ? CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ).h(20).w(20)
-                            : '예약 신청하기'.text.white.bold.size(16).make())
-                        .centered()
-                        .p16()
-                        .box
-                        .color(
-                          selectedVehicleId != null && !isSubmitting
-                              ? Colors.black
-                              : Colors.grey.shade400,
-                        )
-                        .rounded
-                        .make()
-                        .onInkTap(
-                          selectedVehicleId != null && !isSubmitting
-                              ? () => _submitReservation(currentUser.uid)
-                              : null,
-                        )
-                        .box
-                        .make()
-                        .wFull(context),
-                  ]).pOnly(
-                    left: 16,
-                    top: 16,
-                    right: 16,
-                    bottom: MediaQuery.of(context).padding.bottom + 16
-                  ).box.white.withShadow([
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
-                      spreadRadius: 0,
-                    ),
-                  ]).make(),
+                        (isSubmitting
+                                ? CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ).h(20).w(20)
+                                : '예약 신청하기'.text.white.bold.size(16).make())
+                            .centered()
+                            .p16()
+                            .box
+                            .color(
+                              selectedVehicleId != null && !isSubmitting
+                                  ? Colors.black
+                                  : Colors.grey.shade400,
+                            )
+                            .rounded
+                            .make()
+                            .onInkTap(
+                              selectedVehicleId != null && !isSubmitting
+                                  ? () => _submitReservation(currentUser.uid)
+                                  : null,
+                            )
+                            .box
+                            .make()
+                            .wFull(context),
+                      ])
+                      .pOnly(
+                        left: 16,
+                        top: 16,
+                        right: 16,
+                        bottom: MediaQuery.of(context).padding.bottom + 16,
+                      )
+                      .box
+                      .white
+                      .withShadow([
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, -2),
+                          spreadRadius: 0,
+                        ),
+                      ])
+                      .make(),
             ),
           ],
         ),
@@ -628,6 +644,8 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
   }
 
   Future<void> _submitReservation(String userId) async {
+    int? fee = _calculateEstimatedFee();
+
     if (selectedVehicleId == null) {
       ScaffoldMessenger.of(
         context,
@@ -662,7 +680,13 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
       );
 
       if (mounted) {
-        _showSuccessDialog();
+        _showSuccessScreen(
+          widget.parkingLot,
+          selectedVehicle?.plateNumber,
+          selectedArrivalTime,
+          selectedExitTime,
+          fee,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -677,22 +701,26 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
     }
   }
 
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('예약 완료'),
-        content: const Text('발렛 주차가 예약되었습니다.\n예약 시간에 맞춰 도착해주세요.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // 다이얼로그 닫기
-              Navigator.pop(context); // 예약 화면 닫기
-              Navigator.pop(context); // 바텀 시트 닫기
-            },
-            child: const Text('확인'),
-          ),
-        ],
+  void _showSuccessScreen(
+    ParkingLot parkingLot,
+    String? vehiclePlate,
+    DateTime expectedArrival,
+    DateTime? expectedExit,
+    int? fee,
+  ) {
+    Navigator.pop(context); // 예약 화면 닫기
+    Navigator.pop(context); // 바텀 시트 닫기
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReservationCompleteView(
+          parkingLot: parkingLot,
+          vehiclePlate: vehiclePlate,
+          expectedArrival: expectedArrival,
+          expectedExit: expectedExit,
+          fee: fee,
+        ),
       ),
     );
   }
@@ -790,8 +818,16 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
       return null;
     }
 
-    final arrivalDate = DateTime(selectedArrivalTime.year, selectedArrivalTime.month, selectedArrivalTime.day);
-    final exitDate = DateTime(selectedExitTime!.year, selectedExitTime!.month, selectedExitTime!.day);
+    final arrivalDate = DateTime(
+      selectedArrivalTime.year,
+      selectedArrivalTime.month,
+      selectedArrivalTime.day,
+    );
+    final exitDate = DateTime(
+      selectedExitTime!.year,
+      selectedExitTime!.month,
+      selectedExitTime!.day,
+    );
 
     final daysDifference = exitDate.difference(arrivalDate).inDays + 1;
 
@@ -818,7 +854,10 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
 
     // 발렛 주차는 날짜 기반, 일반 주차는 시간 기반 계산
     if (widget.parkingLot.type == ParkingLotType.valet) {
-      return widget.parkingLot.calculateFeeByDate(selectedArrivalTime, selectedExitTime!);
+      return widget.parkingLot.calculateFeeByDate(
+        selectedArrivalTime,
+        selectedExitTime!,
+      );
     } else {
       final parkingMinutes = _calculateParkingMinutes();
       if (parkingMinutes == null) {

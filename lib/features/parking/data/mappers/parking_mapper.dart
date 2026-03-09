@@ -94,6 +94,8 @@ class ParkingMapper {
       unitTime: parking.unitTime,
       unitPrice: parking.unitPrice,
       reservationInfo: parking.reservationInfo, // 민영 주차장의 예약 안내 정보
+      accountNumber: parking.accountNumber,
+      tel: parking.tel,
     );
   }
 

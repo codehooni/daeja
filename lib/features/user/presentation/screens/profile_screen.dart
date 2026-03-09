@@ -631,7 +631,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         Spacer(),
 
         // toggle
-        '1.2.4'.text.size(15).fontWeight(FontWeight.w500).make(),
+        '1.2.6'.text.size(15).fontWeight(FontWeight.w500).make(),
       ],
     ).pSymmetric(v: 8);
   }

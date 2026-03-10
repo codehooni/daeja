@@ -25,6 +25,8 @@ model.Reservation reservationEntityToModel(
     visitorId: entityReservation.visitorId,
     visitorVehicleId: entityReservation.visitorVehicleId,
     visitorVehiclePlate: entityReservation.visitorVehiclePlate,
+    visitorVehicleManufacturer: entityReservation.visitorVehicleManufacturer,
+    visitorVehicleModel: entityReservation.visitorVehicleModel,
     parkingLotId: entityReservation.parkingLotId,
     parkingLotName: entityReservation.parkingLotName,
     parkingLotLat: entityReservation.parkingLotLat,
@@ -39,9 +41,12 @@ model.Reservation reservationEntityToModel(
     handledByStaffName: entityReservation.handledByStaffName,
     handledByStaffPhone: entityReservation.handledByStaffPhone,
     profileImageUrl: entityReservation.profileImageUrl,
+    handledByStaffProfileUrl: entityReservation.handledByStaffProfileUrl,
     actualArrival: entityReservation.actualArrival,
     actualExit: entityReservation.actualExit,
     logs: entityReservation.logs,
+    valetFee: entityReservation.valetFee,
+    dailyParkingFee: entityReservation.dailyParkingFee,
   );
 }
 
@@ -54,6 +59,8 @@ entity.Reservation reservationModelToEntity(
     visitorId: modelReservation.visitorId,
     visitorVehicleId: modelReservation.visitorVehicleId,
     visitorVehiclePlate: modelReservation.visitorVehiclePlate,
+    visitorVehicleManufacturer: modelReservation.visitorVehicleManufacturer,
+    visitorVehicleModel: modelReservation.visitorVehicleModel,
     parkingLotId: modelReservation.parkingLotId,
     parkingLotName: modelReservation.parkingLotName,
     parkingLotLat: modelReservation.parkingLotLat,
@@ -68,8 +75,11 @@ entity.Reservation reservationModelToEntity(
     handledByStaffName: modelReservation.handledByStaffName,
     handledByStaffPhone: modelReservation.handledByStaffPhone,
     profileImageUrl: modelReservation.profileImageUrl,
+    handledByStaffProfileUrl: modelReservation.handledByStaffProfileUrl,
     actualArrival: modelReservation.actualArrival,
     actualExit: modelReservation.actualExit,
     logs: modelReservation.logs,
+    valetFee: modelReservation.valetFee,
+    dailyParkingFee: modelReservation.dailyParkingFee,
   );
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
 
+import '../../../../core/services/price_service.dart';
 import '../../../auth/presentation/screens/sign_in_screen.dart';
 import '../../../parking/domain/models/parking_lot.dart';
 import '../../../user/presentation/providers/user_provider.dart';
@@ -674,9 +675,13 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
             ? null
             : _requestController.text.trim(),
         vehiclePlate: selectedVehicle?.plateNumber,
+        vehicleManufacturer: selectedVehicle?.manufacturer,
+        vehicleModel: selectedVehicle?.model,
         parkingLotName: widget.parkingLot.name,
         parkingLotLat: widget.parkingLot.lat,
         parkingLotLng: widget.parkingLot.lng,
+        valetFee: widget.parkingLot.basePrice,
+        dailyParkingFee: widget.parkingLot.unitPrice,
       );
 
       if (mounted) {
@@ -852,19 +857,20 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
       return null;
     }
 
-    // 발렛 주차는 날짜 기반, 일반 주차는 시간 기반 계산
-    if (widget.parkingLot.type == ParkingLotType.valet) {
-      return widget.parkingLot.calculateFeeByDate(
-        selectedArrivalTime,
-        selectedExitTime!,
-      );
-    } else {
-      final parkingMinutes = _calculateParkingMinutes();
-      if (parkingMinutes == null) {
-        return null;
-      }
-      return widget.parkingLot.calculateFee(parkingMinutes);
+    final valetFee = widget.parkingLot.basePrice;
+    final dailyParkingFee = widget.parkingLot.unitPrice;
+
+    if (valetFee == null || dailyParkingFee == null) {
+      return null;
     }
+
+    // PriceService로 전체 요금 계산
+    return PriceService.calculateTotalFee(
+      selectedArrivalTime,
+      selectedExitTime!,
+      valetFee,
+      dailyParkingFee,
+    );
   }
 
   /// 주차장 타입 칩 위젯

@@ -1,6 +1,18 @@
 import 'parking_spot_entity.dart';
 import 'parking_zone_entity.dart';
 
+/// 안전하게 double로 변환하는 헬퍼 함수
+double? _parseDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is num) return value.toDouble();
+  if (value is String) {
+    return double.tryParse(value);
+  }
+  return null;
+}
+
 class PrivateParkingEntity {
   final String id;
   final String name;
@@ -26,6 +38,12 @@ class PrivateParkingEntity {
   // 예약 안내 정보
   final String? reservationInfo;
 
+  // 미팅 포인트 정보
+  final double? meetingLat;
+  final double? meetingLon;
+  final String? meetingPoint;
+  final String? meetingGuide;
+
   const PrivateParkingEntity({
     required this.id,
     required this.name,
@@ -44,6 +62,10 @@ class PrivateParkingEntity {
     this.unitTime,
     this.unitPrice,
     this.reservationInfo,
+    this.meetingLat,
+    this.meetingLon,
+    this.meetingPoint,
+    this.meetingGuide,
     this.accountNumber,
     this.tel,
   });
@@ -67,6 +89,10 @@ class PrivateParkingEntity {
       unitTime: json['unit_time'] as int?,
       unitPrice: json['unit_price'] as int?,
       reservationInfo: json['reservation_info'] as String?,
+      meetingLat: _parseDouble(json['meeting_lat']),
+      meetingLon: _parseDouble(json['meeting_lon']),
+      meetingPoint: json['meeting_point'] as String?,
+      meetingGuide: json['meeting_guide'] as String?,
       parkingSpots:
           (json['parking_spots'] as List<dynamic>?)
               ?.map(
@@ -102,6 +128,10 @@ class PrivateParkingEntity {
     'unit_time': unitTime,
     'unit_price': unitPrice,
     'reservation_info': reservationInfo,
+    'meeting_lat': meetingLat,
+    'meeting_lon': meetingLon,
+    'meeting_point': meetingPoint,
+    'meeting_guide': meetingGuide,
     'parking_spots': parkingSpots.map((e) => e.toJson()).toList(),
     'parking_zones': parkingZones.map((e) => e.toJson()).toList(),
     'account_number': accountNumber,

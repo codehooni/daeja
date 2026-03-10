@@ -19,21 +19,16 @@ class UserReservationDatasourceFirebase implements UserReservationDatasource {
       // 자동 생성될 document ID를 먼저 받아옴
       final docRef = _firestore.collection(_collection).doc();
 
-      final data = {
-        'id': docRef.id, // 자동 생성된 ID를 data에 포함
-        'visitorId': reservation.visitorId,
-        'visitorVehicleId': reservation.visitorVehicleId,
-        'visitorVehiclePlate': reservation.visitorVehiclePlate,
-        'parkingLotId': reservation.parkingLotId,
-        'parkingLotName': reservation.parkingLotName,
-        'expectedArrival': DateTime.parse(reservation.expectedArrival),
-        'expectedExit': reservation.expectedExit != null
-            ? DateTime.parse(reservation.expectedExit!)
-            : null,
-        'status': reservation.status,
-        'createdAt': FieldValue.serverTimestamp(),
-        'notes': reservation.notes,
-      };
+      // Entity의 toJson() 사용 + Firestore 전용 필드 오버라이드
+      final data = reservation.toJson();
+      data['id'] = docRef.id; // 자동 생성된 ID로 오버라이드
+      data['createdAt'] = FieldValue.serverTimestamp(); // 서버 타임스탬프로 오버라이드
+
+      // expectedArrival, expectedExit을 DateTime 객체로 변환
+      data['expectedArrival'] = DateTime.parse(reservation.expectedArrival);
+      data['expectedExit'] = reservation.expectedExit != null
+          ? DateTime.parse(reservation.expectedExit!)
+          : null;
 
       await docRef.set(data);
 
@@ -210,6 +205,8 @@ class UserReservationDatasourceFirebase implements UserReservationDatasource {
       visitorId: data['visitorId'] as String,
       visitorVehicleId: data['visitorVehicleId'] as String,
       visitorVehiclePlate: data['visitorVehiclePlate'] as String?,
+      visitorVehicleManufacturer: data['visitorVehicleManufacturer'] as String?,
+      visitorVehicleModel: data['visitorVehicleModel'] as String?,
       parkingLotId: data['parkingLotId'] as String,
       parkingLotName: data['parkingLotName'] as String?,
       expectedArrival:
@@ -225,6 +222,7 @@ class UserReservationDatasourceFirebase implements UserReservationDatasource {
       handledByStaffName: data['handledByStaffName'] as String?,
       handledByStaffPhone: data['handledByStaffPhone'] as String?,
       profileImageUrl: data['profileImageUrl'] as String?,
+      handledByStaffProfileUrl: data['handledByStaffProfileUrl'] as String?,
       actualArrival: data['actualArrival'] != null
           ? (data['actualArrival'] as Timestamp).toDate().toIso8601String()
           : null,
@@ -232,6 +230,17 @@ class UserReservationDatasourceFirebase implements UserReservationDatasource {
           ? (data['actualExit'] as Timestamp).toDate().toIso8601String()
           : null,
       logs: data['logs'] as String?,
+      valetFee: _parseIntSafely(data['valetFee']),
+      dailyParkingFee: _parseIntSafely(data['dailyParkingFee']),
     );
+  }
+
+  /// 안전하게 int로 변환 (String 또는 int 모두 처리)
+  int? _parseIntSafely(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    if (value is num) return value.toInt();
+    return null;
   }
 }

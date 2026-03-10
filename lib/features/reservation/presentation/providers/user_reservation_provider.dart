@@ -62,9 +62,13 @@ class UserReservationController {
     DateTime? expectedExit,
     String? notes,
     String? vehiclePlate,
+    String? vehicleManufacturer,
+    String? vehicleModel,
     String? parkingLotName,
     double? parkingLotLat,
     double? parkingLotLng,
+    int? valetFee,
+    int? dailyParkingFee,
   }) async {
     try {
       Log.d('Controller: 예약 생성 - userId=$userId, lotId=$parkingLotId');
@@ -76,9 +80,13 @@ class UserReservationController {
         expectedExit: expectedExit,
         notes: notes,
         vehiclePlate: vehiclePlate,
+        vehicleManufacturer: vehicleManufacturer,
+        vehicleModel: vehicleModel,
         parkingLotName: parkingLotName,
         parkingLotLat: parkingLotLat,
         parkingLotLng: parkingLotLng,
+        valetFee: valetFee,
+        dailyParkingFee: dailyParkingFee,
       );
       Log.s('Controller: 예약 생성 성공 - ${reservation.id}');
 

@@ -19,9 +19,13 @@ class UserReservationRepositoryImpl implements UserReservationRepository {
     DateTime? expectedExit,
     String? notes,
     String? vehiclePlate,
+    String? vehicleManufacturer,
+    String? vehicleModel,
     String? parkingLotName,
     double? parkingLotLat,
     double? parkingLotLng,
+    int? valetFee,
+    int? dailyParkingFee,
   }) async {
     try {
       Log.d('Repository: 예약 생성 - userId=$userId, lotId=$parkingLotId');
@@ -31,6 +35,8 @@ class UserReservationRepositoryImpl implements UserReservationRepository {
         visitorId: userId,
         visitorVehicleId: vehicleId,
         visitorVehiclePlate: vehiclePlate,
+        visitorVehicleManufacturer: vehicleManufacturer,
+        visitorVehicleModel: vehicleModel,
         parkingLotId: parkingLotId,
         parkingLotName: parkingLotName,
         parkingLotLat: parkingLotLat,
@@ -40,6 +46,8 @@ class UserReservationRepositoryImpl implements UserReservationRepository {
         status: 'pending',
         createdAt: DateTime.now().toIso8601String(),
         notes: notes,
+        valetFee: valetFee,
+        dailyParkingFee: dailyParkingFee,
       );
 
       final createdEntity = await _datasource.createReservation(reservation);

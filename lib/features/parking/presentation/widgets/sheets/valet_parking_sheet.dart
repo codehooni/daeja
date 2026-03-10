@@ -1,3 +1,4 @@
+import 'package:daeja/core/services/price_service.dart';
 import 'package:daeja/features/reservation/presentation/screens/reservation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -181,7 +182,7 @@ class ValetParkingSheet extends StatelessWidget {
           HStack([
             '₩'.text.size(12).gray600.bold.make(),
             4.widthBox,
-            basePrice.text.size(20).bold.black.make(),
+            PriceService.format(basePrice).text.size(20).bold.black.make(),
           ], crossAlignment: CrossAxisAlignment.center),
         ], crossAlignment: CrossAxisAlignment.center),
       ).expand(),
@@ -208,7 +209,7 @@ class ValetParkingSheet extends StatelessWidget {
           HStack([
             '₩'.text.size(12).gray600.bold.make(),
             4.widthBox,
-            unitPrice.text.size(20).bold.black.make(),
+            PriceService.format(unitPrice).text.size(20).bold.black.make(),
           ], crossAlignment: CrossAxisAlignment.center),
         ], crossAlignment: CrossAxisAlignment.center),
       ).expand(),

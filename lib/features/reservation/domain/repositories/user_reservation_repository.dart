@@ -12,9 +12,14 @@ abstract class UserReservationRepository {
     String? notes,
     // Denormalized fields
     String? vehiclePlate,
+    String? vehicleManufacturer,
+    String? vehicleModel,
     String? parkingLotName,
     double? parkingLotLat,
     double? parkingLotLng,
+    // Pricing fields
+    int? valetFee,
+    int? dailyParkingFee,
   });
 
   // 내 모든 예약 조회

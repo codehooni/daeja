@@ -1,5 +1,7 @@
+import 'package:daeja/core/services/notification_service.dart';
 import 'package:daeja/core/utils/firebase_message.dart';
 import 'package:daeja/daeja_app.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -8,6 +10,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
+
+// @pragma('vm:entry-point')
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   await Firebase.initializeApp();
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,10 +26,7 @@ void main() async {
   await FirebaseMessage().initNotifications();
 
   // 독립적인 작업들을 병렬로 실행하여 초기화 속도 향상
-  await Future.wait([
-    _initHive(),
-    dotenv.load(fileName: '.env'),
-  ]);
+  await Future.wait([_initHive(), dotenv.load(fileName: '.env')]);
 
   // Naver Map은 .env 로드 후 실행 (dotenv.env 사용)
   await FlutterNaverMap().init(

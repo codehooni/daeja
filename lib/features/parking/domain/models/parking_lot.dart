@@ -22,6 +22,12 @@ class ParkingLot {
   // 예약 안내 정보 (발렛 서비스 관련)
   final String? reservationInfo; // 세차, 차량 인수 위치 등의 예약 관련 안내
 
+  // 미팅 포인트 정보
+  final double? meetingLat; // 미팅 장소 위도
+  final double? meetingLon; // 미팅 장소 경도
+  final String? meetingPoint; // 미팅 장소 설명 (예: "지하 1층 A-15 기둥 앞")
+  final String? meetingGuide; // 미팅 가이드 (예: "주황색 고깔이 세워진 구역입니다. 도착 후 비상등을 켜주세요.")
+
   const ParkingLot({
     required this.id,
     required this.name,
@@ -37,6 +43,10 @@ class ParkingLot {
     this.unitTime,
     this.unitPrice,
     this.reservationInfo,
+    this.meetingLat,
+    this.meetingLon,
+    this.meetingPoint,
+    this.meetingGuide,
     this.accountNumber,
     this.tel,
   });
@@ -58,6 +68,10 @@ class ParkingLot {
       unitTime: unitTime,
       unitPrice: unitPrice,
       reservationInfo: reservationInfo ?? this.reservationInfo,
+      meetingLat: meetingLat,
+      meetingLon: meetingLon,
+      meetingPoint: meetingPoint,
+      meetingGuide: meetingGuide,
       accountNumber: accountNumber,
       tel: tel,
     );

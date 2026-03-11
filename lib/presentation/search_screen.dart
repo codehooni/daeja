@@ -9,6 +9,7 @@ import '../features/parking/domain/models/parking_lot.dart';
 import '../features/parking/presentation/providers/parking_providers.dart';
 import '../features/parking/presentation/providers/service_providers.dart';
 import '../features/parking/presentation/widgets/parking_detail_bottom_sheet.dart';
+import '../features/parking/presentation/widgets/parking_bottom_sheet_factory.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -400,7 +401,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget _buildParkingLotCard(ParkingLot lot) {
     return GestureDetector(
       onTap: () {
-        ParkingDetailBottomSheet.show(context, lot);
+        ParkingBottomSheetFactory.show(context, lot);
       },
       child: VStack([
           // Name & Type badge

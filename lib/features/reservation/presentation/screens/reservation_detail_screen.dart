@@ -619,15 +619,15 @@ class _ReservationDetailScreenState
           HStack([
             Icon(
               Icons.description_outlined,
-              color: Colors.grey.shade700,
-              size: 20,
+              color: mainColor,
+              size: 24,
             ).pOnly(bottom: 4),
             8.widthBox,
             Expanded(
-              child: '메모'.text
-                  .size(18)
-                  .color(Colors.grey.shade700)
-                  .fontWeight(FontWeight.w500)
+              child: '요청사항'.text
+                  .color(Colors.grey.shade600)
+                  .size(15)
+                  .semiBold
                   .make(),
             ),
           ]),
@@ -642,9 +642,8 @@ class _ReservationDetailScreenState
         .pSymmetric(v: 16, h: 16)
         .box
         .rounded
-        .color(Colors.grey.shade50)
+        .white
         .border(color: Colors.grey.shade300)
-        .shadowSm
         .make()
         .pSymmetric(h: 16);
   }
@@ -1073,7 +1072,9 @@ class _ReservationDetailScreenState
             HStack([
               '전체 요금'.text.color(Colors.black87).size(18).semiBold.make(),
               Spacer(),
-              PriceService.formatCurrency(totalFee).text.size(22).bold.make(),
+              PriceService.formatCurrency(
+                totalFee,
+              ).text.color(mainColor).size(22).bold.make(),
             ]),
             12.heightBox,
 

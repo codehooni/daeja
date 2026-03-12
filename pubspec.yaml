@@ -1,7 +1,7 @@
 name: daeja
 description: "전국 주차장 정보를 실시간으로 확인할 수 있는 앱"
 
-version: 1.2.8+39
+version: 1.2.9+40
 
 environment:
   sdk: ^3.8.1

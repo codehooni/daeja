@@ -10,6 +10,8 @@ class UrlUtils {
       'https://sparkly-beijinho-fec979.netlify.app/';
   static const String privacyPolicyUrl =
       'https://inquisitive-pavlova-f56f57.netlify.app/';
+  static const String customerServiceUrl =
+      'https://spiced-edam-b14.notion.site/3050b863464580be9435cdcb99d649ee?source=copy_link';
 
   /// Opens a URL in the external browser
   /// Shows error feedback if launch fails

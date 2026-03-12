@@ -15,6 +15,7 @@ import '../../../reservation/domain/models/reservation.dart'
 import '../../../reservation/presentation/providers/user_reservation_provider.dart';
 import '../../domain/models/user.dart';
 import '../../domain/models/vehicle.dart';
+import '../../../../core/utils/url_utils.dart';
 import 'terms_screen.dart';
 import 'vehicle_add_screen.dart';
 
@@ -145,6 +146,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               // Policy
               Column(
                 children: [
+                  // Customer Service
+                  _buildMenuItem(
+                    Icons.headset_mic_outlined,
+                    '고객센터',
+                    onTap: () {
+                      UrlUtils.openUrl(context, UrlUtils.customerServiceUrl);
+                    },
+                  ),
+
                   // Terms of Service
                   _buildMenuItem(
                     Icons.info_outline,
@@ -631,7 +641,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         Spacer(),
 
         // toggle
-        '1.2.8'.text.size(15).fontWeight(FontWeight.w500).make(),
+        '1.2.9'.text.size(15).fontWeight(FontWeight.w500).make(),
       ],
     ).pSymmetric(v: 8);
   }

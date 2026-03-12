@@ -1,6 +1,7 @@
 import 'package:daeja/core/constants/colors.dart';
 import 'package:daeja/core/services/phone_call_service.dart';
 import 'package:daeja/core/services/price_service.dart';
+import 'package:daeja/core/services/vehicle_image_service.dart';
 import 'package:daeja/features/parking/domain/models/parking_lot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -993,7 +994,10 @@ class _ReservationDetailScreenState
 
           // Image
           Image.asset(
-            'assets/images/cars/sedan.png',
+            VehicleImageService.getImagePath(
+              manufacturer: reservation.visitorVehicleManufacturer,
+              model: reservation.visitorVehicleModel,
+            ),
             width: 66,
             height: 46,
             fit: BoxFit.cover,
@@ -1043,6 +1047,14 @@ class _ReservationDetailScreenState
         dailyParkingFee,
       );
 
+      final parkingLotsAsync = ref.watch(parkingLotsProvider);
+      final account = parkingLotsAsync.value
+          ?.firstWhere(
+            (l) => l.id == reservation.parkingLotId,
+            orElse: () => throw StateError('not found'),
+          )
+          .accountNumber;
+
       // UI 표시
       return VStack([
             // 발렛 요금
@@ -1078,46 +1090,43 @@ class _ReservationDetailScreenState
             ]),
             12.heightBox,
 
-            Divider(),
+            if (account != null) ...[
+              Divider(),
 
-            '요금 결제를 위한 계좌'.text
-                .color(Colors.grey.shade600)
-                .size(12)
-                .bold
-                .make(),
-            4.heightBox,
+              '요금 결제를 위한 계좌'.text
+                  .color(Colors.grey.shade600)
+                  .size(12)
+                  .bold
+                  .make(),
+              4.heightBox,
 
-            HStack([
-                  '농협 351-1339-5934-63 이재석'.text
-                      .color(Colors.black54)
-                      .bold
-                      .make()
-                      .expand(),
-                  Icon(Icons.copy, size: 20)
-                      .p8()
-                      .box
-                      .white
-                      .rounded
-                      .border(color: Colors.grey.shade100)
-                      .make()
-                      .onInkTap(() {
-                        // 클립보드에 텍스트 복사
-                        Clipboard.setData(
-                          const ClipboardData(text: "농협 351-1339-5934-63 이재석"),
-                        );
-
-                        // 사용자에게 알림 표시 (선택 사항이지만 권장)
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("계좌번호가 복사되었습니다.")),
-                        );
-                      }),
-                ])
+              HStack([
+                    account.text
+                        .color(Colors.black54)
+                        .bold
+                        .make()
+                        .expand(),
+                    Icon(Icons.copy, size: 20)
+                        .p8()
+                        .box
+                        .white
+                        .rounded
+                        .border(color: Colors.grey.shade100)
+                        .make()
+                        .onInkTap(() {
+                          Clipboard.setData(ClipboardData(text: account));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("계좌번호가 복사되었습니다.")),
+                          );
+                        }),
+                  ])
                 .p16()
                 .wFull(context)
                 .box
                 .rounded
                 .color(Colors.grey.shade50)
                 .make(),
+            ],
           ])
           .p16()
           .wFull(context)

@@ -51,12 +51,16 @@ class FirebaseMessage {
       );
     }
 
-    // 2. FCM 토큰 가져오기
-    final fCMToken = await _firebaseMessaging.getToken();
-    if (fCMToken != null) {
-      Log.d('[FirebaseMessage.initNotifications] ✅ FCM Token : $fCMToken');
-    } else {
-      Log.e('[FirebaseMessage.initNotifications] ❌ FCM 토큰을 가져올 수 없습니다');
+    // 2. FCM 토큰 가져오기 (iOS 시뮬레이터는 APNS 미지원으로 스킵)
+    try {
+      final fCMToken = await _firebaseMessaging.getToken();
+      if (fCMToken != null) {
+        Log.d('[FirebaseMessage.initNotifications] ✅ FCM Token : $fCMToken');
+      } else {
+        Log.e('[FirebaseMessage.initNotifications] ❌ FCM 토큰을 가져올 수 없습니다');
+      }
+    } catch (e) {
+      Log.d('[FirebaseMessage.initNotifications] FCM 토큰 조회 실패 (시뮬레이터 환경): $e');
     }
 
     // 3. 로컬 알림 초기화
